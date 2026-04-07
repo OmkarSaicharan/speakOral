@@ -23,6 +23,7 @@ import {
 import { useState, useEffect } from 'react';
 import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, writeBatch } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
+import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { 
@@ -58,6 +59,8 @@ export default function Layout({ user }: LayoutProps) {
       const notifs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Notification));
       setNotifications(notifs);
       setHasUnread(notifs.some(n => !n.read));
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, 'notifications');
     });
 
     return () => unsubscribe();

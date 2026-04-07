@@ -21,6 +21,7 @@ import Community from './pages/Community';
 import AdminDashboard from './pages/AdminDashboard';
 import Profile from './pages/Profile';
 import Layout from './components/Layout';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 export default function App() {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -57,21 +58,23 @@ export default function App() {
   }
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={user ? <Navigate to="/" /> : <Login onUserUpdate={setUser} />} />
-        
-        <Route element={user ? <Layout user={user} /> : <Navigate to="/login" />}>
-          <Route path="/" element={user?.role === 'admin' ? <AdminDashboard /> : <Dashboard user={user!} />} />
-          <Route path="/notes" element={<Notes user={user!} />} />
-          <Route path="/videos" element={<Videos user={user!} />} />
-          <Route path="/quizzes" element={<Quizzes user={user!} />} />
-          <Route path="/assignments" element={<Assignments user={user!} />} />
-          <Route path="/community" element={<Community user={user!} />} />
-          <Route path="/profile" element={<Profile user={user!} onUserUpdate={handleUserUpdate} />} />
-        </Route>
-      </Routes>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <Routes>
+          <Route path="/login" element={user ? <Navigate to="/" /> : <Login onUserUpdate={setUser} />} />
+          
+          <Route element={user ? <Layout user={user} /> : <Navigate to="/login" />}>
+            <Route path="/" element={user?.role === 'admin' ? <AdminDashboard /> : <Dashboard user={user!} />} />
+            <Route path="/notes" element={<Notes user={user!} />} />
+            <Route path="/videos" element={<Videos user={user!} />} />
+            <Route path="/quizzes" element={<Quizzes user={user!} />} />
+            <Route path="/assignments" element={<Assignments user={user!} />} />
+            <Route path="/community" element={<Community user={user!} />} />
+            <Route path="/profile" element={<Profile user={user!} onUserUpdate={handleUserUpdate} />} />
+          </Route>
+        </Routes>
+      </Router>
+    </ErrorBoundary>
   );
 }
 

@@ -32,6 +32,9 @@ service cloud.firestore {
     // Collection: comments
     // Fields: postId, authorId, authorName, content, likes (array of UIDs), createdAt
     //
+    // Collection: notifications
+    // Fields: userId, title, message, type (info/success/warning/error), read, createdAt
+    //
     // ===============================================================
 
     // ===============================================================
@@ -48,7 +51,8 @@ service cloud.firestore {
     function isAdmin() {
       return isAuthenticated() && 
         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
-         (request.auth.token.email == "saicheranomkar@gmail.com" && request.auth.token.email_verified == true));
+         (request.auth.token.email == "saicheranomkar@gmail.com" && request.auth.token.email_verified == true) ||
+         (request.auth.token.email == "admin@gmail.com" && request.auth.token.email_verified == true));
     }
 
     function hasOnlyAllowedFields(fields) {
@@ -134,6 +138,19 @@ service cloud.firestore {
         allow update: if isAuthenticated() && (isOwner(resource.data.authorId) || isAdmin() || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes']));
         allow delete: if isAuthenticated() && (isOwner(resource.data.authorId) || isAdmin());
       }
+    }
+
+    match /notifications/{notificationId} {
+      function isValidNotification(data) {
+        return data.userId is string && data.title is string && data.message is string &&
+               data.type in ['info', 'success', 'warning', 'error'] &&
+               data.read is bool && data.createdAt is string;
+      }
+      allow read: if isAuthenticated() && isOwner(resource.data.userId);
+      allow create: if isAuthenticated() && isValidNotification(request.resource.data);
+      allow update: if isAuthenticated() && isOwner(resource.data.userId) && 
+                    request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
     }
   }
 }

@@ -36,7 +36,7 @@ export default function Login({ onUserUpdate }: LoginProps) {
         onUserUpdate(userDoc.data() as UserProfile);
       } else {
         // Create new student profile for first time Google login
-        const isAdmin = user.email === 'AA@gmail.com';
+        const isAdmin = user.email === 'admin@gmail.com';
         const newProfile: UserProfile = {
           uid: user.uid,
           name: user.displayName || 'New Student',
@@ -64,7 +64,21 @@ export default function Login({ onUserUpdate }: LoginProps) {
       if (userDoc.exists()) {
         onUserUpdate(userDoc.data() as UserProfile);
       } else {
-        setError("User profile not found.");
+        // If it's the admin email but profile is missing, create it
+        if (email === 'admin@gmail.com') {
+          const adminProfile: UserProfile = {
+            uid: result.user.uid,
+            name: 'Admin',
+            email: 'admin@gmail.com',
+            rollNumber: '100A',
+            role: 'admin',
+            createdAt: new Date().toISOString(),
+          };
+          await setDoc(doc(db, 'users', result.user.uid), adminProfile);
+          onUserUpdate(adminProfile);
+        } else {
+          setError("User profile not found. Please register first.");
+        }
       }
     } catch (err: any) {
       setError(err.message);
@@ -81,7 +95,7 @@ export default function Login({ onUserUpdate }: LoginProps) {
       const result = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(result.user, { displayName: name });
       
-      const isAdmin = email === 'AA@gmail.com';
+      const isAdmin = email === 'admin@gmail.com';
       const newProfile: UserProfile = {
         uid: result.user.uid,
         name,

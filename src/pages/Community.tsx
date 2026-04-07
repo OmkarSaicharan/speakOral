@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { collection, query, getDocs, addDoc, updateDoc, doc, orderBy, onSnapshot, arrayUnion, arrayRemove, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { UserProfile, Post, Comment } from '../types';
+import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,8 +50,12 @@ export default function Community({ user }: CommunityProps) {
             ...prev,
             [post.id]: cSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Comment))
           }));
+        }, (error) => {
+          handleFirestoreError(error, OperationType.LIST, `posts/${post.id}/comments`);
         });
       });
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, 'posts');
     });
 
     return () => unsubscribe();
