@@ -49,10 +49,12 @@ service cloud.firestore {
     }
 
     function isAdmin() {
+      let email = request.auth.token.email;
       return isAuthenticated() && 
-        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
-         (request.auth.token.email == "saicheranomkar@gmail.com" && request.auth.token.email_verified == true) ||
-         (request.auth.token.email == "admin@gmail.com" && request.auth.token.email_verified == true));
+        (email == "saicheranomkar@gmail.com" ||
+         email == "admin@gmail.com" ||
+         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'));
     }
 
     function hasOnlyAllowedFields(fields) {
@@ -108,7 +110,7 @@ service cloud.firestore {
 
     match /results/{resultId} {
       allow read: if isAuthenticated() && (isOwner(resource.data.studentId) || isAdmin());
-      allow create: if isAuthenticated() && isOwner(request.resource.data.studentId);
+      allow create: if isAuthenticated() && (isOwner(request.resource.data.studentId) || isAdmin());
     }
 
     match /assignments/{assignmentId} {
@@ -118,7 +120,7 @@ service cloud.firestore {
 
     match /submissions/{submissionId} {
       allow read: if isAuthenticated() && (isOwner(resource.data.studentId) || isAdmin());
-      allow create: if isAuthenticated() && isOwner(request.resource.data.studentId);
+      allow create: if isAuthenticated() && (isOwner(request.resource.data.studentId) || isAdmin());
       allow update: if isAuthenticated() && (isAdmin() || (isOwner(resource.data.studentId) && !('marks' in request.resource.data)));
     }
 
@@ -146,8 +148,8 @@ service cloud.firestore {
                data.type in ['info', 'success', 'warning', 'error'] &&
                data.read is bool && data.createdAt is string;
       }
-      allow read: if isAuthenticated() && isOwner(resource.data.userId);
-      allow create: if isAuthenticated() && isValidNotification(request.resource.data);
+      allow read: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
+      allow create: if isAuthenticated() && (isOwner(request.resource.data.userId) || isAdmin()) && isValidNotification(request.resource.data);
       allow update: if isAuthenticated() && isOwner(resource.data.userId) && 
                     request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
       allow delete: if isAuthenticated() && isOwner(resource.data.userId);
