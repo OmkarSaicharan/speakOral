@@ -182,7 +182,7 @@ export default function Notes({ user }: NotesProps) {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Study Notes</h1>
-          <p className="text-slate-500 mt-1">Comprehensive guides to master English grammar and vocabulary.</p>
+          <p className="text-slate-600 mt-1">Comprehensive guides to master English grammar and vocabulary.</p>
         </div>
         
         {isAdmin && (
@@ -190,13 +190,13 @@ export default function Notes({ user }: NotesProps) {
             setIsDialogOpen(open);
             if (!open) resetForm();
           }}>
-            <DialogTrigger render={<Button className="bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md shadow-emerald-100" />}>
+            <DialogTrigger render={<Button className="bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md shadow-emerald-100 w-full md:w-auto" />}>
               <Plus className="mr-2 h-4 w-4" /> Add New Note
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
+            <DialogContent className="sm:max-w-[600px] w-[95vw] max-h-[90vh] overflow-y-auto rounded-2xl">
               <DialogHeader>
                 <DialogTitle>{editingNote ? 'Edit Note' : 'Create New Note'}</DialogTitle>
-                <DialogDescription>
+                <DialogDescription className="text-slate-600">
                   Fill in the details below. You can use Markdown for the content.
                 </DialogDescription>
               </DialogHeader>
@@ -283,17 +283,17 @@ export default function Notes({ user }: NotesProps) {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 pt-2 flex-1">
-              <p className="text-slate-500 text-sm line-clamp-3">
+              <p className="text-slate-600 text-sm line-clamp-3">
                 {note.content.replace(/[#*`]/g, '')}
               </p>
             </CardContent>
             <CardFooter className="p-6 pt-0 border-t border-slate-50 mt-auto">
               <div className="flex items-center justify-between w-full pt-4">
-                <div className="flex items-center text-xs text-slate-400">
+                <div className="flex items-center text-xs text-slate-500 font-medium">
                   <Clock className="h-3 w-3 mr-1" />
                   {new Date(note.createdAt).toLocaleDateString()}
                 </div>
-                <Button variant="ghost" className="text-emerald-600 font-bold text-sm p-0 h-auto hover:bg-transparent" onClick={() => setSelectedNote(note)}>
+                <Button variant="ghost" className="text-emerald-700 font-bold text-sm p-0 h-auto hover:bg-transparent" onClick={() => setSelectedNote(note)}>
                   Read More <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
               </div>

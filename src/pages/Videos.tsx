@@ -128,7 +128,7 @@ export default function Videos({ user }: VideosProps) {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Video Lessons</h1>
-          <p className="text-slate-500 mt-1">Watch and learn from our curated English tutorials.</p>
+          <p className="text-slate-600 mt-1">Watch and learn from our curated English tutorials.</p>
         </div>
         
         {isAdmin && (
@@ -136,13 +136,13 @@ export default function Videos({ user }: VideosProps) {
             setIsDialogOpen(open);
             if (!open) resetForm();
           }}>
-            <DialogTrigger render={<Button className="bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md shadow-emerald-100" />}>
+            <DialogTrigger render={<Button className="bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md shadow-emerald-100 w-full md:w-auto" />}>
               <Plus className="mr-2 h-4 w-4" /> Add New Video
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] overflow-y-auto rounded-2xl">
               <DialogHeader>
                 <DialogTitle>{editingVideo ? 'Edit Video' : 'Add New Video'}</DialogTitle>
-                <DialogDescription>
+                <DialogDescription className="text-slate-600">
                   Enter the video details and YouTube URL.
                 </DialogDescription>
               </DialogHeader>

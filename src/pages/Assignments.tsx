@@ -396,7 +396,7 @@ export default function Assignments({ user }: AssignmentsProps) {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Assignments</h1>
-          <p className="text-slate-500 mt-1">Practical tasks to apply what you've learned.</p>
+          <p className="text-slate-600 mt-1">Practical tasks to apply what you've learned.</p>
         </div>
         
         {isAdmin && (
@@ -404,13 +404,13 @@ export default function Assignments({ user }: AssignmentsProps) {
             setIsDialogOpen(open);
             if (!open) resetForm();
           }}>
-            <DialogTrigger render={<Button className="bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md shadow-emerald-100" />}>
+            <DialogTrigger render={<Button className="bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md shadow-emerald-100 w-full md:w-auto" />}>
               <Plus className="mr-2 h-4 w-4" /> Create Assignment
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] overflow-y-auto rounded-2xl">
               <DialogHeader>
                 <DialogTitle>Create New Assignment</DialogTitle>
-                <DialogDescription>
+                <DialogDescription className="text-slate-600">
                   Set a task for your students with a clear deadline.
                 </DialogDescription>
               </DialogHeader>
@@ -490,11 +490,11 @@ export default function Assignments({ user }: AssignmentsProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 pt-2 flex-1">
-                <p className="text-slate-500 text-sm line-clamp-3">
+                <p className="text-slate-600 text-sm line-clamp-3">
                   {assignment.description}
                 </p>
                 {isAdmin && (
-                  <div className="mt-4 flex items-center text-xs text-slate-400">
+                  <div className="mt-4 flex items-center text-xs text-slate-600 font-bold">
                     <UsersIcon className="h-3 w-3 mr-1" />
                     {submissionCount} students submitted
                   </div>

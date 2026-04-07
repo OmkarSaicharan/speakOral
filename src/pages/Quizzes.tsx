@@ -336,7 +336,7 @@ export default function Quizzes({ user }: QuizzesProps) {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Quizzes</h1>
-          <p className="text-slate-500 mt-1">Test your knowledge and track your progress.</p>
+          <p className="text-slate-600 mt-1">Test your knowledge and track your progress.</p>
         </div>
         
         {isAdmin && (
@@ -344,13 +344,13 @@ export default function Quizzes({ user }: QuizzesProps) {
             setIsDialogOpen(open);
             if (!open) resetForm();
           }}>
-            <DialogTrigger render={<Button className="bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md shadow-emerald-100" />}>
+            <DialogTrigger render={<Button className="bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md shadow-emerald-100 w-full md:w-auto" />}>
               <Plus className="mr-2 h-4 w-4" /> Create Quiz
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+            <DialogContent className="sm:max-w-[700px] w-[95vw] max-h-[90vh] overflow-y-auto rounded-2xl">
               <DialogHeader>
                 <DialogTitle>Create New Quiz</DialogTitle>
-                <DialogDescription>
+                <DialogDescription className="text-slate-600">
                   Define your quiz title, topic, and multiple choice questions.
                 </DialogDescription>
               </DialogHeader>
@@ -461,12 +461,12 @@ export default function Quizzes({ user }: QuizzesProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 pt-2 flex-1">
-                <div className="flex items-center space-x-2 text-xs text-slate-500">
+                <div className="flex items-center space-x-2 text-xs text-slate-600 font-medium">
                   <Timer className="h-3 w-3" />
                   <span>Approx. {quiz.questions.length * 2} mins</span>
                 </div>
                 {isAdmin && (
-                  <div className="mt-4 text-xs text-slate-400 font-medium">
+                  <div className="mt-4 text-xs text-slate-600 font-bold">
                     {quizResults.length} students completed this quiz
                   </div>
                 )}

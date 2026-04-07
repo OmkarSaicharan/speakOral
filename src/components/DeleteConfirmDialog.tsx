@@ -37,7 +37,7 @@ export function DeleteConfirmDialog({
             <AlertTriangle className="h-6 w-6 text-red-600" />
           </div>
           <DialogTitle className="text-center text-xl font-bold text-slate-900">{title}</DialogTitle>
-          <DialogDescription className="text-center text-slate-500 pt-2">
+          <DialogDescription className="text-center text-slate-600 pt-2">
             {description}
           </DialogDescription>
         </DialogHeader>
@@ -55,7 +55,7 @@ export function DeleteConfirmDialog({
               onConfirm();
               onOpenChange(false);
             }}
-            className="flex-1 rounded-xl bg-red-600 hover:bg-red-700 shadow-lg shadow-red-100"
+            className="flex-1 rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-100 font-bold"
           >
             {confirmText}
           </Button>

@@ -128,7 +128,7 @@ export default function Community({ user }: CommunityProps) {
     <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in duration-500">
       <div>
         <h1 className="text-3xl font-bold text-slate-900">Community</h1>
-        <p className="text-slate-500 mt-1">Connect with other learners, ask questions, and share knowledge.</p>
+        <p className="text-slate-600 mt-1">Connect with other learners, ask questions, and share knowledge.</p>
       </div>
 
       {/* Create Post */}
@@ -178,7 +178,7 @@ export default function Community({ user }: CommunityProps) {
                   </Avatar>
                   <div>
                     <p className="text-sm font-bold text-slate-900">{post.authorName}</p>
-                    <p className="text-xs text-slate-400 flex items-center">
+                    <p className="text-xs text-slate-500 font-medium flex items-center">
                       <Clock className="h-3 w-3 mr-1" />
                       {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
                     </p>
@@ -201,18 +201,18 @@ export default function Community({ user }: CommunityProps) {
                 <button 
                   className={cn(
                     "flex items-center text-sm font-bold transition-colors",
-                    post.likes.includes(user.uid) ? "text-emerald-600" : "text-slate-500 hover:text-emerald-600"
+                    post.likes.includes(user.uid) ? "text-emerald-600" : "text-slate-600 hover:text-emerald-600"
                   )}
                   onClick={() => handleLikePost(post)}
                 >
                   <ThumbsUp className={cn("h-4 w-4 mr-2", post.likes.includes(user.uid) && "fill-emerald-600")} />
                   {post.likes.length} Likes
                 </button>
-                <div className="flex items-center text-sm font-bold text-slate-500">
+                <div className="flex items-center text-sm font-bold text-slate-600">
                   <MessageCircle className="h-4 w-4 mr-2" />
                   {comments[post.id]?.length || 0} Answers
                 </div>
-                <button className="flex items-center text-sm font-bold text-slate-500 hover:text-emerald-600 transition-colors">
+                <button className="flex items-center text-sm font-bold text-slate-600 hover:text-emerald-600 transition-colors">
                   <Share2 className="h-4 w-4 mr-2" />
                   Share
                 </button>
