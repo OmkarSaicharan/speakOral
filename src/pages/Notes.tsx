@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { collection, query, getDocs, addDoc, updateDoc, deleteDoc, doc, orderBy } from 'firebase/firestore';
 import { db } from '../firebase';
 import { UserProfile, Note } from '../types';
@@ -27,9 +27,15 @@ import {
   ChevronRight,
   ArrowLeft,
   FileText,
-  ExternalLink
+  ExternalLink,
+  Upload,
+  File,
+  X
 } from 'lucide-react';
+import { FileUpload } from '../components/FileUpload';
+import { DeleteConfirmDialog } from '../components/DeleteConfirmDialog';
 import ReactMarkdown from 'react-markdown';
+import { cn } from '../lib/utils';
 
 interface NotesProps {
   user: UserProfile;
@@ -48,8 +54,14 @@ export default function Notes({ user }: NotesProps) {
   const [topic, setTopic] = useState('');
   const [content, setContent] = useState('');
   const [pdfUrl, setPdfUrl] = useState('');
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const isAdmin = user.role === 'admin';
+
+  const filteredNotes = notes.filter(note => 
+    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    note.topic.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   useEffect(() => {
     fetchNotes();
@@ -99,7 +111,6 @@ export default function Notes({ user }: NotesProps) {
   };
 
   const handleDeleteNote = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this note?")) return;
     try {
       await deleteDoc(doc(db, 'notes', id));
       fetchNotes();
@@ -117,21 +128,16 @@ export default function Notes({ user }: NotesProps) {
     setEditingNote(null);
   };
 
-  const filteredNotes = notes.filter(note => 
-    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    note.topic.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   if (selectedNote) {
     return (
       <div className="space-y-6 animate-in slide-in-from-right duration-300">
-        <Button variant="ghost" onClick={() => setSelectedNote(null)} className="mb-4 hover:bg-blue-50 text-blue-600">
+        <Button variant="ghost" onClick={() => setSelectedNote(null)} className="mb-4 hover:bg-emerald-50 text-emerald-600">
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to Notes
         </Button>
         
         <Card className="border-none shadow-sm overflow-hidden bg-white">
           <CardHeader className="border-b border-slate-100 p-8">
-            <div className="flex items-center space-x-2 text-blue-600 mb-4">
+            <div className="flex items-center space-x-2 text-emerald-600 mb-4">
               <Tag className="h-4 w-4" />
               <span className="text-sm font-bold uppercase tracking-wider">{selectedNote.topic}</span>
             </div>
@@ -210,16 +216,14 @@ export default function Notes({ user }: NotesProps) {
                     value={content} 
                     onChange={(e) => setContent(e.target.value)} 
                     placeholder="Write your lesson content here..." 
-                    className="min-h-[200px]"
+                    className="min-h-[200px] rounded-xl border-slate-200 focus:ring-emerald-500"
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="pdfUrl">PDF URL (Optional)</Label>
-                  <Input 
-                    id="pdfUrl" 
+                  <Label>PDF Attachment</Label>
+                  <FileUpload 
                     value={pdfUrl} 
-                    onChange={(e) => setPdfUrl(e.target.value)} 
-                    placeholder="https://example.com/lesson.pdf" 
+                    onFileSelect={setPdfUrl} 
                   />
                 </div>
               </div>
@@ -238,7 +242,7 @@ export default function Notes({ user }: NotesProps) {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
         <Input 
           placeholder="Search notes by title or topic..." 
-          className="pl-10 h-12 bg-white border-slate-200 rounded-xl focus:ring-blue-500"
+          className="pl-10 h-12 bg-white border-slate-200 rounded-xl focus:ring-emerald-500"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -249,12 +253,12 @@ export default function Notes({ user }: NotesProps) {
           <Card key={note.id} className="border-none shadow-sm hover:shadow-md transition-all group flex flex-col bg-white overflow-hidden">
             <CardHeader className="p-6 pb-2">
               <div className="flex items-center justify-between mb-3">
-                <span className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider rounded-full">
+                <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase tracking-wider rounded-full">
                   {note.topic}
                 </span>
                 {isAdmin && (
                   <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-blue-600" onClick={(e) => {
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-emerald-600" onClick={(e) => {
                       e.stopPropagation();
                       setEditingNote(note);
                       setTitle(note.title);
@@ -267,14 +271,14 @@ export default function Notes({ user }: NotesProps) {
                     </Button>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-red-600" onClick={(e) => {
                       e.stopPropagation();
-                      handleDeleteNote(note.id);
+                      setDeleteId(note.id);
                     }}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 )}
               </div>
-              <CardTitle className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+              <CardTitle className="text-xl font-bold text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-2">
                 {note.title}
               </CardTitle>
             </CardHeader>
@@ -289,7 +293,7 @@ export default function Notes({ user }: NotesProps) {
                   <Clock className="h-3 w-3 mr-1" />
                   {new Date(note.createdAt).toLocaleDateString()}
                 </div>
-                <Button variant="ghost" className="text-blue-600 font-bold text-sm p-0 h-auto hover:bg-transparent" onClick={() => setSelectedNote(note)}>
+                <Button variant="ghost" className="text-emerald-600 font-bold text-sm p-0 h-auto hover:bg-transparent" onClick={() => setSelectedNote(note)}>
                   Read More <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
               </div>
@@ -306,6 +310,14 @@ export default function Notes({ user }: NotesProps) {
           </div>
         )}
       </div>
+
+      <DeleteConfirmDialog 
+        isOpen={!!deleteId} 
+        onOpenChange={(open) => !open && setDeleteId(null)} 
+        onConfirm={() => deleteId && handleDeleteNote(deleteId)}
+        title="Delete Note"
+        description="Are you sure you want to delete this note? This action cannot be undone."
+      />
     </div>
   );
 }

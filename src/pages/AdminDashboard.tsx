@@ -59,10 +59,10 @@ export default function AdminDashboard() {
   }, []);
 
   const statCards = [
-    { name: 'Total Students', value: stats.students, icon: Users, color: 'bg-blue-50 text-blue-600' },
-    { name: 'Notes', value: stats.notes, icon: BookOpen, color: 'bg-green-50 text-green-600' },
-    { name: 'Videos', value: stats.videos, icon: VideoIcon, color: 'bg-purple-50 text-purple-600' },
-    { name: 'Assignments', value: stats.assignments, icon: FileText, color: 'bg-orange-50 text-orange-600' },
+    { name: 'Total Students', value: stats.students, icon: Users, color: 'bg-emerald-50 text-emerald-600' },
+    { name: 'Notes', value: stats.notes, icon: BookOpen, color: 'bg-emerald-50 text-emerald-600' },
+    { name: 'Videos', value: stats.videos, icon: VideoIcon, color: 'bg-emerald-50 text-emerald-600' },
+    { name: 'Assignments', value: stats.assignments, icon: FileText, color: 'bg-emerald-50 text-emerald-600' },
   ];
 
   return (
@@ -103,7 +103,7 @@ export default function AdminDashboard() {
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-slate-900">Recent Student Performance</h2>
-            <Button variant="ghost" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+            <Button variant="ghost" className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50">
               View all results <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
@@ -125,7 +125,7 @@ export default function AdminDashboard() {
                       <tr key={result.id} className="hover:bg-slate-50 transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center">
-                            <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs mr-3">
+                            <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-xs mr-3">
                               {result.studentName.charAt(0)}
                             </div>
                             <div>
@@ -171,70 +171,70 @@ export default function AdminDashboard() {
         <div className="space-y-6">
           <h2 className="text-xl font-bold text-slate-900">Content Management</h2>
           <div className="grid grid-cols-1 gap-4">
-            <Card className="border-none shadow-sm hover:shadow-md transition-all cursor-pointer group bg-white border-l-4 border-l-green-500">
+            <Card className="border-none shadow-sm hover:shadow-md transition-all cursor-pointer group bg-white border-l-4 border-l-emerald-500">
               <CardHeader className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <div className="bg-green-50 p-2 rounded-lg">
-                      <BookOpen className="h-5 w-5 text-green-600" />
+                    <div className="bg-emerald-50 p-2 rounded-lg">
+                      <BookOpen className="h-5 w-5 text-emerald-600" />
                     </div>
                     <div>
                       <CardTitle className="text-base">Manage Notes</CardTitle>
                       <CardDescription className="text-xs">Add or edit text lessons</CardDescription>
                     </div>
                   </div>
-                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-green-500 transition-colors" />
+                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-emerald-500 transition-colors" />
                 </div>
               </CardHeader>
             </Card>
 
-            <Card className="border-none shadow-sm hover:shadow-md transition-all cursor-pointer group bg-white border-l-4 border-l-purple-500">
+            <Card className="border-none shadow-sm hover:shadow-md transition-all cursor-pointer group bg-white border-l-4 border-l-emerald-500">
               <CardHeader className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <div className="bg-purple-50 p-2 rounded-lg">
-                      <VideoIcon className="h-5 w-5 text-purple-600" />
+                    <div className="bg-emerald-50 p-2 rounded-lg">
+                      <VideoIcon className="h-5 w-5 text-emerald-600" />
                     </div>
                     <div>
                       <CardTitle className="text-base">Manage Videos</CardTitle>
                       <CardDescription className="text-xs">Upload video tutorials</CardDescription>
                     </div>
                   </div>
-                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-purple-500 transition-colors" />
+                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-emerald-500 transition-colors" />
                 </div>
               </CardHeader>
             </Card>
 
-            <Card className="border-none shadow-sm hover:shadow-md transition-all cursor-pointer group bg-white border-l-4 border-l-blue-500">
+            <Card className="border-none shadow-sm hover:shadow-md transition-all cursor-pointer group bg-white border-l-4 border-l-emerald-500">
               <CardHeader className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <div className="bg-blue-50 p-2 rounded-lg">
-                      <GraduationCap className="h-5 w-5 text-blue-600" />
+                    <div className="bg-emerald-50 p-2 rounded-lg">
+                      <GraduationCap className="h-5 w-5 text-emerald-600" />
                     </div>
                     <div>
                       <CardTitle className="text-base">Manage Quizzes</CardTitle>
                       <CardDescription className="text-xs">Create and edit MCQs</CardDescription>
                     </div>
                   </div>
-                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-blue-500 transition-colors" />
+                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-emerald-500 transition-colors" />
                 </div>
               </CardHeader>
             </Card>
 
-            <Card className="border-none shadow-sm hover:shadow-md transition-all cursor-pointer group bg-white border-l-4 border-l-orange-500">
+            <Card className="border-none shadow-sm hover:shadow-md transition-all cursor-pointer group bg-white border-l-4 border-l-emerald-500">
               <CardHeader className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <div className="bg-orange-50 p-2 rounded-lg">
-                      <FileText className="h-5 w-5 text-orange-600" />
+                    <div className="bg-emerald-50 p-2 rounded-lg">
+                      <FileText className="h-5 w-5 text-emerald-600" />
                     </div>
                     <div>
                       <CardTitle className="text-base">Assignments</CardTitle>
                       <CardDescription className="text-xs">Grade student submissions</CardDescription>
                     </div>
                   </div>
-                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-orange-500 transition-colors" />
+                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-emerald-500 transition-colors" />
                 </div>
               </CardHeader>
             </Card>
@@ -243,7 +243,7 @@ export default function AdminDashboard() {
           <Card className="border-none bg-slate-900 text-white shadow-lg">
             <CardHeader>
               <CardTitle className="text-lg flex items-center">
-                <TrendingUp className="mr-2 h-5 w-5 text-blue-400" />
+                <TrendingUp className="mr-2 h-5 w-5 text-emerald-400" />
                 Platform Growth
               </CardTitle>
             </CardHeader>
@@ -251,11 +251,11 @@ export default function AdminDashboard() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-slate-400">New Students (This Month)</span>
-                  <span className="text-sm font-bold text-green-400">+12%</span>
+                  <span className="text-sm font-bold text-emerald-400">+12%</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-slate-400">Engagement Rate</span>
-                  <span className="text-sm font-bold text-blue-400">84%</span>
+                  <span className="text-sm font-bold text-emerald-400">84%</span>
                 </div>
               </div>
             </CardContent>

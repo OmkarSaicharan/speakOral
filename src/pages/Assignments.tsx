@@ -34,6 +34,8 @@ import {
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { format } from 'date-fns';
+import { FileUpload } from '../components/FileUpload';
+import { DeleteConfirmDialog } from '../components/DeleteConfirmDialog';
 
 interface AssignmentsProps {
   user: UserProfile;
@@ -57,6 +59,7 @@ export default function Assignments({ user }: AssignmentsProps) {
   const [description, setDescription] = useState('');
   const [pdfUrl, setPdfUrl] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   // Grading state
   const [gradingSubmission, setGradingSubmission] = useState<Submission | null>(null);
@@ -127,7 +130,6 @@ export default function Assignments({ user }: AssignmentsProps) {
   };
 
   const handleDeleteAssignment = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this assignment?")) return;
     try {
       await deleteDoc(doc(db, 'assignments', id));
       fetchAssignments();
@@ -218,7 +220,7 @@ export default function Assignments({ user }: AssignmentsProps) {
     const submission = getSubmissionForAssignment(selectedAssignment.id);
     return (
       <div className="space-y-6 animate-in slide-in-from-right duration-300">
-        <Button variant="ghost" onClick={() => setSelectedAssignment(null)} className="mb-4 hover:bg-blue-50 text-blue-600">
+        <Button variant="ghost" onClick={() => setSelectedAssignment(null)} className="mb-4 hover:bg-emerald-50 text-emerald-600">
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to Assignments
         </Button>
         
@@ -226,7 +228,7 @@ export default function Assignments({ user }: AssignmentsProps) {
           <div className="lg:col-span-2 space-y-6">
             <Card className="border-none shadow-sm bg-white">
               <CardHeader className="p-8">
-                <div className="flex items-center space-x-2 text-blue-600 mb-4">
+                <div className="flex items-center space-x-2 text-emerald-600 mb-4">
                   <FileText className="h-4 w-4" />
                   <span className="text-sm font-bold uppercase tracking-wider">Assignment</span>
                 </div>
@@ -273,20 +275,20 @@ export default function Assignments({ user }: AssignmentsProps) {
                     {submission.content}
                   </div>
                   {submission.pdfUrl && (
-                    <div className="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-100 flex items-center justify-between">
+                    <div className="mb-6 p-4 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <div className="bg-blue-100 p-2 rounded-lg">
-                          <FileText className="h-6 w-6 text-blue-600" />
+                        <div className="bg-emerald-100 p-2 rounded-lg">
+                          <FileText className="h-6 w-6 text-emerald-600" />
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-blue-900">Submitted PDF</p>
-                          <p className="text-xs text-blue-500">Your uploaded work file</p>
+                          <p className="text-sm font-bold text-emerald-900">Submitted PDF</p>
+                          <p className="text-xs text-emerald-500">Your uploaded work file</p>
                         </div>
                       </div>
                       <Button 
                         variant="outline" 
                         size="sm"
-                        className="rounded-xl border-blue-200 text-blue-600 hover:bg-blue-50"
+                        className="rounded-xl border-emerald-200 text-emerald-600 hover:bg-emerald-50"
                         onClick={() => window.open(submission.pdfUrl, '_blank')}
                       >
                         <ExternalLink className="mr-2 h-4 w-4" /> View PDF
@@ -318,19 +320,16 @@ export default function Assignments({ user }: AssignmentsProps) {
                     <Textarea 
                       id="sub-content"
                       placeholder="Write your submission here..." 
-                      className="min-h-[150px] rounded-2xl border-slate-200 focus:ring-blue-500"
+                      className="min-h-[150px] rounded-2xl border-slate-200 focus:ring-emerald-500"
                       value={submissionContent}
                       onChange={(e) => setSubmissionContent(e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="sub-pdf">PDF URL (Optional)</Label>
-                    <Input 
-                      id="sub-pdf"
-                      placeholder="https://example.com/my-work.pdf" 
-                      className="rounded-xl border-slate-200 focus:ring-blue-500"
-                      value={submissionPdfUrl}
-                      onChange={(e) => setSubmissionPdfUrl(e.target.value)}
+                    <Label htmlFor="sub-pdf">PDF Attachment (Optional)</Label>
+                    <FileUpload 
+                      value={submissionPdfUrl} 
+                      onFileSelect={setSubmissionPdfUrl} 
                     />
                   </div>
                   <Button 
@@ -380,9 +379,9 @@ export default function Assignments({ user }: AssignmentsProps) {
             </Card>
 
             <div className="bg-emerald-600 p-6 rounded-3xl text-white shadow-lg shadow-emerald-100">
-              <AlertCircle className="h-8 w-8 mb-4 text-blue-200" />
+              <AlertCircle className="h-8 w-8 mb-4 text-emerald-200" />
               <h4 className="font-bold text-lg mb-2">Important Note</h4>
-              <p className="text-blue-100 text-sm leading-relaxed">
+              <p className="text-emerald-100 text-sm leading-relaxed">
                 Please ensure your submission is original work. Plagiarism will result in a zero grade. Contact your instructor if you need an extension.
               </p>
             </div>
@@ -425,8 +424,11 @@ export default function Assignments({ user }: AssignmentsProps) {
                   <Textarea id="as-desc" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Provide detailed instructions..." className="min-h-[150px]" />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="as-pdf">PDF URL (Optional)</Label>
-                  <Input id="as-pdf" value={pdfUrl} onChange={(e) => setPdfUrl(e.target.value)} placeholder="https://example.com/task.pdf" />
+                  <Label htmlFor="as-pdf">PDF Attachment (Optional)</Label>
+                  <FileUpload 
+                    value={pdfUrl} 
+                    onFileSelect={setPdfUrl} 
+                  />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="as-due">Due Date</Label>
@@ -446,7 +448,7 @@ export default function Assignments({ user }: AssignmentsProps) {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
         <Input 
           placeholder="Search assignments..." 
-          className="pl-10 h-12 bg-white border-slate-200 rounded-xl focus:ring-blue-500"
+          className="pl-10 h-12 bg-white border-slate-200 rounded-xl focus:ring-emerald-500"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -464,7 +466,7 @@ export default function Assignments({ user }: AssignmentsProps) {
                 <div className="flex items-center justify-between mb-3">
                   <div className={cn(
                     "px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full",
-                    isAdmin ? "bg-blue-50 text-blue-600" : (submission ? "bg-green-50 text-green-600" : isOverdue ? "bg-red-50 text-red-600" : "bg-orange-50 text-orange-600")
+                    isAdmin ? "bg-emerald-50 text-emerald-600" : (submission ? "bg-green-50 text-green-600" : isOverdue ? "bg-red-50 text-red-600" : "bg-orange-50 text-orange-600")
                   )}>
                     {isAdmin ? `${submissionCount} Submissions` : (submission ? 'Submitted' : isOverdue ? 'Overdue' : 'Pending')}
                   </div>
@@ -476,14 +478,14 @@ export default function Assignments({ user }: AssignmentsProps) {
                     {isAdmin && (
                       <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => {
                         e.stopPropagation();
-                        handleDeleteAssignment(assignment.id);
+                        setDeleteId(assignment.id);
                       }}>
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     )}
                   </div>
                 </div>
-                <CardTitle className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+                <CardTitle className="text-xl font-bold text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-2">
                   {assignment.title}
                 </CardTitle>
               </CardHeader>
@@ -502,7 +504,7 @@ export default function Assignments({ user }: AssignmentsProps) {
                 <Button 
                   className={cn(
                     "w-full mt-4 rounded-xl font-bold",
-                    isAdmin ? "bg-blue-600 hover:bg-blue-700" : "bg-emerald-600 hover:bg-emerald-700"
+                    isAdmin ? "bg-emerald-600 hover:bg-emerald-700" : "bg-emerald-600 hover:bg-emerald-700"
                   )} 
                   onClick={() => isAdmin ? document.getElementById('submissions-table')?.scrollIntoView({ behavior: 'smooth' }) : setSelectedAssignment(assignment)}
                 >
@@ -563,7 +565,7 @@ export default function Assignments({ user }: AssignmentsProps) {
                         </td>
                         <td className="px-6 py-4">
                           <Dialog open={gradingSubmission?.id === sub.id} onOpenChange={(open) => !open && setGradingSubmission(null)}>
-                            <DialogTrigger render={<Button variant="ghost" size="sm" className="text-blue-600 font-bold hover:bg-blue-50" onClick={() => {
+                            <DialogTrigger render={<Button variant="ghost" size="sm" className="text-emerald-600 font-bold hover:bg-emerald-50" onClick={() => {
                                 setGradingSubmission(sub);
                                 setMarks(sub.marks || 0);
                                 setFeedback(sub.feedback || '');
@@ -582,15 +584,15 @@ export default function Assignments({ user }: AssignmentsProps) {
                                   {sub.content}
                                 </div>
                                 {sub.pdfUrl && (
-                                  <div className="p-3 bg-blue-50 rounded-xl border border-blue-100 flex items-center justify-between">
+                                  <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center justify-between">
                                     <div className="flex items-center space-x-2">
-                                      <FileText className="h-4 w-4 text-blue-600" />
-                                      <span className="text-xs font-bold text-blue-900">Student PDF Attachment</span>
+                                      <FileText className="h-4 w-4 text-emerald-600" />
+                                      <span className="text-xs font-bold text-emerald-900">Student PDF Attachment</span>
                                     </div>
                                     <Button 
                                       variant="ghost" 
                                       size="sm" 
-                                      className="h-7 text-blue-600 hover:bg-blue-100"
+                                      className="h-7 text-emerald-600 hover:bg-emerald-100"
                                       onClick={() => window.open(sub.pdfUrl, '_blank')}
                                     >
                                       <ExternalLink className="h-3 w-3 mr-1" /> View
@@ -622,6 +624,14 @@ export default function Assignments({ user }: AssignmentsProps) {
           </Card>
         </div>
       )}
+
+      <DeleteConfirmDialog 
+        isOpen={!!deleteId} 
+        onOpenChange={(open) => !open && setDeleteId(null)} 
+        onConfirm={() => deleteId && handleDeleteAssignment(deleteId)}
+        title="Delete Assignment"
+        description="Are you sure you want to delete this assignment? This action cannot be undone."
+      />
     </div>
   );
 }

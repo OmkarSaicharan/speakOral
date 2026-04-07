@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { formatDistanceToNow } from 'date-fns';
+import { DeleteConfirmDialog } from '../components/DeleteConfirmDialog';
 
 interface CommunityProps {
   user: UserProfile;
@@ -35,6 +36,7 @@ export default function Community({ user }: CommunityProps) {
   // Comments state
   const [comments, setComments] = useState<Record<string, Comment[]>>({});
   const [newCommentContent, setNewCommentContent] = useState<Record<string, string>>({});
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
@@ -96,7 +98,6 @@ export default function Community({ user }: CommunityProps) {
   };
 
   const handleDeletePost = async (postId: string) => {
-    if (!confirm("Delete this post?")) return;
     try {
       await deleteDoc(doc(db, 'posts', postId));
     } catch (error) {
@@ -143,7 +144,7 @@ export default function Community({ user }: CommunityProps) {
             <div className="flex-1 space-y-4">
               <Textarea 
                 placeholder="What's on your mind? Ask a question or share a tip..." 
-                className="min-h-[100px] rounded-2xl border-slate-100 focus:ring-blue-500 bg-slate-50 resize-none"
+                className="min-h-[100px] rounded-2xl border-slate-100 focus:ring-emerald-500 bg-slate-50 resize-none"
                 value={newPostContent}
                 onChange={(e) => setNewPostContent(e.target.value)}
               />
@@ -184,7 +185,7 @@ export default function Community({ user }: CommunityProps) {
                   </div>
                 </div>
                 {user.role === 'admin' && (
-                  <Button variant="ghost" size="icon" className="text-slate-400 hover:text-red-600" onClick={() => handleDeletePost(post.id)}>
+                  <Button variant="ghost" size="icon" className="text-slate-400 hover:text-red-600" onClick={() => setDeleteId(post.id)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 )}
@@ -200,18 +201,18 @@ export default function Community({ user }: CommunityProps) {
                 <button 
                   className={cn(
                     "flex items-center text-sm font-bold transition-colors",
-                    post.likes.includes(user.uid) ? "text-blue-600" : "text-slate-500 hover:text-blue-600"
+                    post.likes.includes(user.uid) ? "text-emerald-600" : "text-slate-500 hover:text-emerald-600"
                   )}
                   onClick={() => handleLikePost(post)}
                 >
-                  <ThumbsUp className={cn("h-4 w-4 mr-2", post.likes.includes(user.uid) && "fill-blue-600")} />
+                  <ThumbsUp className={cn("h-4 w-4 mr-2", post.likes.includes(user.uid) && "fill-emerald-600")} />
                   {post.likes.length} Likes
                 </button>
                 <div className="flex items-center text-sm font-bold text-slate-500">
                   <MessageCircle className="h-4 w-4 mr-2" />
                   {comments[post.id]?.length || 0} Answers
                 </div>
-                <button className="flex items-center text-sm font-bold text-slate-500 hover:text-blue-600 transition-colors">
+                <button className="flex items-center text-sm font-bold text-slate-500 hover:text-emerald-600 transition-colors">
                   <Share2 className="h-4 w-4 mr-2" />
                   Share
                 </button>
@@ -248,13 +249,13 @@ export default function Community({ user }: CommunityProps) {
                   <div className="flex-1 relative">
                     <Input 
                       placeholder="Write an answer..." 
-                      className="h-10 rounded-full bg-white border-slate-200 pr-10 focus:ring-blue-500"
+                      className="h-10 rounded-full bg-white border-slate-200 pr-10 focus:ring-emerald-500"
                       value={newCommentContent[post.id] || ''}
                       onChange={(e) => setNewCommentContent(prev => ({ ...prev, [post.id]: e.target.value }))}
                       onKeyDown={(e) => e.key === 'Enter' && handleCreateComment(post.id)}
                     />
                     <button 
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 disabled:text-slate-300"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-600 disabled:text-slate-300"
                       disabled={!newCommentContent[post.id]?.trim()}
                       onClick={() => handleCreateComment(post.id)}
                     >
@@ -276,6 +277,14 @@ export default function Community({ user }: CommunityProps) {
           </div>
         )}
       </div>
+
+      <DeleteConfirmDialog 
+        isOpen={!!deleteId} 
+        onOpenChange={(open) => !open && setDeleteId(null)} 
+        onConfirm={() => deleteId && handleDeletePost(deleteId)}
+        title="Delete Post"
+        description="Are you sure you want to delete this community post? This action cannot be undone."
+      />
     </div>
   );
 }

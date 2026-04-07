@@ -110,41 +110,6 @@ export default function Dashboard({ user }: DashboardProps) {
               </div>
             )}
           </div>
-
-          <div className="flex items-center justify-between pt-4">
-            <h2 className="text-xl font-bold text-slate-900">Latest Quiz Results</h2>
-          </div>
-          <Card className="border-none shadow-sm">
-            <CardContent className="p-0">
-              <div className="divide-y divide-slate-100">
-                {results.map((result) => (
-                  <div key={result.id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors first:rounded-t-2xl last:rounded-b-2xl">
-                    <div className="flex items-center space-x-4">
-                      <div className={cn(
-                        "p-2 rounded-full",
-                        (result.score / result.totalQuestions) >= 0.7 ? "bg-emerald-50 text-emerald-600" : "bg-orange-50 text-orange-600"
-                      )}>
-                        <CheckCircle2 className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-slate-900">{result.quizTitle}</p>
-                        <p className="text-xs text-slate-500">{new Date(result.completedAt).toLocaleDateString()}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-slate-900">{result.score}/{result.totalQuestions}</p>
-                      <p className="text-xs text-slate-500">{Math.round((result.score / result.totalQuestions) * 100)}%</p>
-                    </div>
-                  </div>
-                ))}
-                {results.length === 0 && !loading && (
-                  <div className="p-8 text-center text-slate-400">
-                    You haven't taken any quizzes yet.
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Sidebar Info */}

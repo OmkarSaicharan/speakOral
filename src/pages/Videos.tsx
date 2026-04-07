@@ -15,6 +15,7 @@ import {
   DialogTrigger 
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { DeleteConfirmDialog } from '../components/DeleteConfirmDialog';
 import { 
   Video as VideoIcon, 
   Plus, 
@@ -43,6 +44,7 @@ export default function Videos({ user }: VideosProps) {
   const [title, setTitle] = useState('');
   const [topic, setTopic] = useState('');
   const [url, setUrl] = useState('');
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const isAdmin = user.role === 'admin';
 
@@ -90,7 +92,6 @@ export default function Videos({ user }: VideosProps) {
   };
 
   const handleDeleteVideo = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this video?")) return;
     try {
       await deleteDoc(doc(db, 'videos', id));
       fetchVideos();
@@ -199,7 +200,7 @@ export default function Videos({ user }: VideosProps) {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
         <Input 
           placeholder="Search videos by title or topic..." 
-          className="pl-10 h-12 bg-white border-slate-200 rounded-xl focus:ring-blue-500"
+          className="pl-10 h-12 bg-white border-slate-200 rounded-xl focus:ring-emerald-500"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -209,21 +210,21 @@ export default function Videos({ user }: VideosProps) {
         {filteredVideos.map((video) => (
           <Card key={video.id} className="border-none shadow-sm hover:shadow-md transition-all group bg-white overflow-hidden flex flex-col">
             <div className="relative aspect-video bg-slate-100 flex items-center justify-center group-hover:bg-slate-200 transition-colors cursor-pointer" onClick={() => setActiveVideo(video)}>
-              <VideoIcon className="h-12 w-12 text-slate-300 group-hover:text-blue-400 transition-colors" />
+              <VideoIcon className="h-12 w-12 text-slate-300 group-hover:text-emerald-400 transition-colors" />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
                 <div className="bg-white p-3 rounded-full shadow-lg">
-                  <Play className="h-6 w-6 text-blue-600 fill-blue-600" />
+                  <Play className="h-6 w-6 text-emerald-600 fill-emerald-600" />
                 </div>
               </div>
             </div>
             <CardHeader className="p-5 pb-2">
               <div className="flex items-center justify-between mb-2">
-                <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider rounded-full">
+                <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase tracking-wider rounded-full">
                   {video.topic}
                 </span>
                 {isAdmin && (
                   <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-blue-600" onClick={(e) => {
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-emerald-600" onClick={(e) => {
                       e.stopPropagation();
                       setEditingVideo(video);
                       setTitle(video.title);
@@ -235,14 +236,14 @@ export default function Videos({ user }: VideosProps) {
                     </Button>
                     <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-red-600" onClick={(e) => {
                       e.stopPropagation();
-                      handleDeleteVideo(video.id);
+                      setDeleteId(video.id);
                     }}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
                 )}
               </div>
-              <CardTitle className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2 cursor-pointer" onClick={() => setActiveVideo(video)}>
+              <CardTitle className="text-lg font-bold text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-2 cursor-pointer" onClick={() => setActiveVideo(video)}>
                 {video.title}
               </CardTitle>
             </CardHeader>
@@ -252,7 +253,7 @@ export default function Videos({ user }: VideosProps) {
                   <Clock className="h-3 w-3 mr-1" />
                   {new Date(video.createdAt).toLocaleDateString()}
                 </div>
-                <Button variant="ghost" size="sm" className="text-blue-600 hover:bg-blue-50 h-8" onClick={() => setActiveVideo(video)}>
+                <Button variant="ghost" size="sm" className="text-emerald-600 hover:bg-emerald-50 h-8" onClick={() => setActiveVideo(video)}>
                   Watch Now
                 </Button>
               </div>
@@ -269,6 +270,14 @@ export default function Videos({ user }: VideosProps) {
           </div>
         )}
       </div>
+
+      <DeleteConfirmDialog 
+        isOpen={!!deleteId} 
+        onOpenChange={(open) => !open && setDeleteId(null)} 
+        onConfirm={() => deleteId && handleDeleteVideo(deleteId)}
+        title="Delete Video"
+        description="Are you sure you want to delete this video lesson? This action cannot be undone."
+      />
     </div>
   );
 }

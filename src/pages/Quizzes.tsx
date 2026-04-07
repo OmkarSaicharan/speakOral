@@ -15,6 +15,7 @@ import {
   DialogTrigger 
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { DeleteConfirmDialog } from '../components/DeleteConfirmDialog';
 import { 
   PenTool, 
   Plus, 
@@ -54,6 +55,7 @@ export default function Quizzes({ user }: QuizzesProps) {
   const [questions, setQuestions] = useState<Question[]>([
     { question: '', options: ['', '', '', ''], correctAnswer: 0 }
   ]);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const isAdmin = user.role === 'admin';
 
@@ -123,7 +125,6 @@ export default function Quizzes({ user }: QuizzesProps) {
   };
 
   const handleDeleteQuiz = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this quiz?")) return;
     try {
       await deleteDoc(doc(db, 'quizzes', id));
       fetchQuizzes();
@@ -218,7 +219,7 @@ export default function Quizzes({ user }: QuizzesProps) {
                 <Trophy className="h-16 w-16 text-white" />
               </div>
               <h2 className="text-3xl font-bold text-white mb-2">Quiz Completed!</h2>
-              <p className="text-blue-100">Congratulations on finishing the {activeQuiz.title} quiz.</p>
+              <p className="text-emerald-100">Congratulations on finishing the {activeQuiz.title} quiz.</p>
             </div>
             <CardContent className="p-12">
               <div className="flex justify-center items-baseline space-x-2 mb-8">
@@ -262,14 +263,14 @@ export default function Quizzes({ user }: QuizzesProps) {
     return (
       <div className="max-w-3xl mx-auto space-y-8 animate-in slide-in-from-bottom-8 duration-500">
         <div className="flex items-center justify-between">
-          <Button variant="ghost" onClick={() => setActiveQuiz(null)} className="text-slate-500 hover:text-blue-600">
+          <Button variant="ghost" onClick={() => setActiveQuiz(null)} className="text-slate-500 hover:text-emerald-600">
             <ArrowLeft className="mr-2 h-4 w-4" /> Quit Quiz
           </Button>
           <div className="flex items-center space-x-4">
             <div className="flex items-center text-slate-500 text-sm font-medium">
               <Timer className="h-4 w-4 mr-1" /> 15:00
             </div>
-            <div className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-bold">
+            <div className="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-xs font-bold">
               Question {currentQuestionIndex + 1} of {activeQuiz.questions.length}
             </div>
           </div>
@@ -297,8 +298,8 @@ export default function Quizzes({ user }: QuizzesProps) {
                   className={cn(
                     "flex items-center p-5 rounded-2xl border-2 text-left transition-all duration-200",
                     selectedAnswers[currentQuestionIndex] === index
-                      ? "border-blue-600 bg-blue-50 text-blue-700 shadow-md"
-                      : "border-slate-100 hover:border-blue-200 hover:bg-slate-50 text-slate-600"
+                      ? "border-emerald-600 bg-emerald-50 text-emerald-700 shadow-md"
+                      : "border-slate-100 hover:border-emerald-200 hover:bg-slate-50 text-slate-600"
                   )}
                 >
                   <div className={cn(
@@ -398,7 +399,7 @@ export default function Quizzes({ user }: QuizzesProps) {
                       <div className="grid gap-2">
                         <Label>Correct Answer</Label>
                         <select 
-                          className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                           value={q.correctAnswer}
                           onChange={(e) => handleQuestionChange(qIndex, 'correctAnswer', e.target.value)}
                         >
@@ -424,7 +425,7 @@ export default function Quizzes({ user }: QuizzesProps) {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
         <Input 
           placeholder="Search quizzes by title or topic..." 
-          className="pl-10 h-12 bg-white border-slate-200 rounded-xl focus:ring-blue-500"
+          className="pl-10 h-12 bg-white border-slate-200 rounded-xl focus:ring-emerald-500"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -437,7 +438,7 @@ export default function Quizzes({ user }: QuizzesProps) {
             <Card key={quiz.id} className="border-none shadow-sm hover:shadow-md transition-all group bg-white overflow-hidden flex flex-col">
               <CardHeader className="p-6 pb-2">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider rounded-full">
+                  <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase tracking-wider rounded-full">
                     {quiz.topic}
                   </span>
                   <div className="flex items-center space-x-2">
@@ -448,14 +449,14 @@ export default function Quizzes({ user }: QuizzesProps) {
                     {isAdmin && (
                       <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => {
                         e.stopPropagation();
-                        handleDeleteQuiz(quiz.id);
+                        setDeleteId(quiz.id);
                       }}>
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     )}
                   </div>
                 </div>
-                <CardTitle className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+                <CardTitle className="text-xl font-bold text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-2">
                   {quiz.title}
                 </CardTitle>
               </CardHeader>
@@ -474,7 +475,7 @@ export default function Quizzes({ user }: QuizzesProps) {
                 <Button 
                   className={cn(
                     "w-full mt-4 rounded-xl font-bold",
-                    isAdmin ? "bg-blue-600 hover:bg-blue-700" : "bg-emerald-600 hover:bg-emerald-700"
+                    isAdmin ? "bg-emerald-600 hover:bg-emerald-700" : "bg-emerald-600 hover:bg-emerald-700"
                   )} 
                   onClick={() => isAdmin ? document.getElementById('quiz-results-table')?.scrollIntoView({ behavior: 'smooth' }) : startQuiz(quiz)}
                 >
@@ -495,54 +496,84 @@ export default function Quizzes({ user }: QuizzesProps) {
         )}
       </div>
 
-      {isAdmin && results.length > 0 && (
-        <div id="quiz-results-table" className="pt-12 space-y-6">
-          <h2 className="text-2xl font-bold text-slate-900">Quiz Submissions</h2>
-          <Card className="border-none shadow-sm overflow-hidden">
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50 border-b border-slate-100">
-                      <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Student</th>
-                      <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Quiz</th>
-                      <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Score</th>
-                      <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {results.map((res) => (
-                      <tr key={res.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-6 py-4">
-                          <p className="text-sm font-semibold text-slate-900">{res.studentName}</p>
-                          <p className="text-xs text-slate-500">{res.rollNumber || 'No Roll No.'}</p>
-                        </td>
-                        <td className="px-6 py-4">
-                          <p className="text-sm text-slate-700 font-medium">{res.quizTitle}</p>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center">
-                            <span className={cn(
-                              "text-sm font-bold mr-2",
-                              (res.score / res.totalQuestions) >= 0.7 ? "text-green-600" : (res.score / res.totalQuestions) >= 0.4 ? "text-orange-600" : "text-red-600"
-                            )}>
-                              {res.score} / {res.totalQuestions}
-                            </span>
-                            <span className="text-xs text-slate-400">({Math.round((res.score / res.totalQuestions) * 100)}%)</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <p className="text-xs text-slate-500">{new Date(res.completedAt).toLocaleDateString()}</p>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+      {isAdmin && quizzes.length > 0 && (
+        <div id="quiz-results-table" className="pt-12 space-y-10">
+          <h2 className="text-2xl font-bold text-slate-900">Student Performance by Quiz</h2>
+          
+          {quizzes.map((quiz) => {
+            const quizResults = getResultsForQuiz(quiz.id);
+            if (quizResults.length === 0) return null;
+
+            return (
+              <div key={quiz.id} className="space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900">{quiz.title}</h3>
+                    <p className="text-xs text-slate-500 uppercase tracking-wider font-bold">{quiz.topic}</p>
+                  </div>
+                  <span className="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-xs font-bold">
+                    {quizResults.length} Submissions
+                  </span>
+                </div>
+
+                <Card className="border-none shadow-sm overflow-hidden">
+                  <CardContent className="p-0">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-slate-50 border-b border-slate-100">
+                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Student</th>
+                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Score</th>
+                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Date</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {quizResults.map((res) => (
+                            <tr key={res.id} className="hover:bg-slate-50 transition-colors">
+                              <td className="px-6 py-4">
+                                <p className="text-sm font-semibold text-slate-900">{res.studentName}</p>
+                                <p className="text-xs text-slate-500">{res.rollNumber || 'No Roll No.'}</p>
+                              </td>
+                              <td className="px-6 py-4">
+                                <div className="flex items-center">
+                                  <span className={cn(
+                                    "text-sm font-bold mr-2",
+                                    (res.score / res.totalQuestions) >= 0.7 ? "text-green-600" : (res.score / res.totalQuestions) >= 0.4 ? "text-orange-600" : "text-red-600"
+                                  )}>
+                                    {res.score} / {res.totalQuestions}
+                                  </span>
+                                  <span className="text-xs text-slate-400">({Math.round((res.score / res.totalQuestions) * 100)}%)</span>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4">
+                                <p className="text-xs text-slate-500">{new Date(res.completedAt).toLocaleDateString()}</p>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-            </CardContent>
-          </Card>
+            );
+          })}
+
+          {results.length === 0 && (
+            <div className="py-12 text-center bg-white rounded-3xl border-2 border-dashed border-slate-100">
+              <p className="text-slate-500">No quiz submissions yet.</p>
+            </div>
+          )}
         </div>
       )}
+
+      <DeleteConfirmDialog 
+        isOpen={!!deleteId} 
+        onOpenChange={(open) => !open && setDeleteId(null)} 
+        onConfirm={() => deleteId && handleDeleteQuiz(deleteId)}
+        title="Delete Quiz"
+        description="Are you sure you want to delete this quiz? This action cannot be undone."
+      />
     </div>
   );
 }
