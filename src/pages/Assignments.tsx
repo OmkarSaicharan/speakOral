@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { collection, query, getDocs, addDoc, updateDoc, doc, orderBy, where } from 'firebase/firestore';
+import { collection, query, getDocs, addDoc, updateDoc, doc, orderBy, where, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { UserProfile, Assignment, Submission } from '../types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -27,7 +27,10 @@ import {
   ChevronRight,
   ArrowLeft,
   Send,
-  GraduationCap
+  GraduationCap,
+  ExternalLink,
+  Users as UsersIcon,
+  Trash2
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { format } from 'date-fns';
@@ -45,12 +48,14 @@ export default function Assignments({ user }: AssignmentsProps) {
   
   // Submission form state
   const [submissionContent, setSubmissionContent] = useState('');
+  const [submissionPdfUrl, setSubmissionPdfUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Admin form state
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [pdfUrl, setPdfUrl] = useState('');
   const [dueDate, setDueDate] = useState('');
 
   // Grading state
@@ -109,6 +114,7 @@ export default function Assignments({ user }: AssignmentsProps) {
       await addDoc(collection(db, 'assignments'), {
         title,
         description,
+        pdfUrl,
         dueDate,
         createdAt: new Date().toISOString(),
       });
@@ -117,6 +123,16 @@ export default function Assignments({ user }: AssignmentsProps) {
       fetchAssignments();
     } catch (error) {
       console.error("Error saving assignment:", error);
+    }
+  };
+
+  const handleDeleteAssignment = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this assignment?")) return;
+    try {
+      await deleteDoc(doc(db, 'assignments', id));
+      fetchAssignments();
+    } catch (error) {
+      console.error("Error deleting assignment:", error);
     }
   };
 
@@ -130,6 +146,7 @@ export default function Assignments({ user }: AssignmentsProps) {
         studentId: user.uid,
         studentName: user.name,
         content: submissionContent,
+        pdfUrl: submissionPdfUrl,
         submittedAt: new Date().toISOString(),
       });
 
@@ -185,6 +202,7 @@ export default function Assignments({ user }: AssignmentsProps) {
   const resetForm = () => {
     setTitle('');
     setDescription('');
+    setPdfUrl('');
     setDueDate('');
   };
 
@@ -219,7 +237,28 @@ export default function Assignments({ user }: AssignmentsProps) {
                 </div>
               </CardHeader>
               <CardContent className="p-8 pt-0 prose prose-slate max-w-none">
-                <p className="text-slate-600 whitespace-pre-wrap">{selectedAssignment.description}</p>
+                <p className="text-slate-600 whitespace-pre-wrap mb-6">{selectedAssignment.description}</p>
+                {selectedAssignment.pdfUrl && (
+                  <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="bg-red-100 p-2 rounded-lg">
+                        <FileText className="h-6 w-6 text-red-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-slate-900">Task PDF</p>
+                        <p className="text-xs text-slate-500">Download assignment instructions</p>
+                      </div>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="rounded-xl border-red-200 text-red-600 hover:bg-red-50"
+                      onClick={() => window.open(selectedAssignment.pdfUrl, '_blank')}
+                    >
+                      <ExternalLink className="mr-2 h-4 w-4" /> View PDF
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -233,6 +272,27 @@ export default function Assignments({ user }: AssignmentsProps) {
                   <div className="bg-slate-50 p-6 rounded-2xl text-slate-700 whitespace-pre-wrap mb-6">
                     {submission.content}
                   </div>
+                  {submission.pdfUrl && (
+                    <div className="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-100 flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="bg-blue-100 p-2 rounded-lg">
+                          <FileText className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-blue-900">Submitted PDF</p>
+                          <p className="text-xs text-blue-500">Your uploaded work file</p>
+                        </div>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="rounded-xl border-blue-200 text-blue-600 hover:bg-blue-50"
+                        onClick={() => window.open(submission.pdfUrl, '_blank')}
+                      >
+                        <ExternalLink className="mr-2 h-4 w-4" /> View PDF
+                      </Button>
+                    </div>
+                  )}
                   {submission.gradedAt && (
                     <div className="bg-green-50 p-6 rounded-2xl border border-green-100">
                       <div className="flex items-center justify-between mb-4">
@@ -253,12 +313,26 @@ export default function Assignments({ user }: AssignmentsProps) {
                   <CardDescription>Type your answer or paste a link to your work below.</CardDescription>
                 </CardHeader>
                 <CardContent className="p-8 pt-0 space-y-4">
-                  <Textarea 
-                    placeholder="Write your submission here..." 
-                    className="min-h-[200px] rounded-2xl border-slate-200 focus:ring-blue-500"
-                    value={submissionContent}
-                    onChange={(e) => setSubmissionContent(e.target.value)}
-                  />
+                  <div className="space-y-2">
+                    <Label htmlFor="sub-content">Your Answer</Label>
+                    <Textarea 
+                      id="sub-content"
+                      placeholder="Write your submission here..." 
+                      className="min-h-[150px] rounded-2xl border-slate-200 focus:ring-blue-500"
+                      value={submissionContent}
+                      onChange={(e) => setSubmissionContent(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="sub-pdf">PDF URL (Optional)</Label>
+                    <Input 
+                      id="sub-pdf"
+                      placeholder="https://example.com/my-work.pdf" 
+                      className="rounded-xl border-slate-200 focus:ring-blue-500"
+                      value={submissionPdfUrl}
+                      onChange={(e) => setSubmissionPdfUrl(e.target.value)}
+                    />
+                  </div>
                   <Button 
                     className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 rounded-xl font-bold"
                     onClick={handleSubmitAssignment}
@@ -351,6 +425,10 @@ export default function Assignments({ user }: AssignmentsProps) {
                   <Textarea id="as-desc" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Provide detailed instructions..." className="min-h-[150px]" />
                 </div>
                 <div className="grid gap-2">
+                  <Label htmlFor="as-pdf">PDF URL (Optional)</Label>
+                  <Input id="as-pdf" value={pdfUrl} onChange={(e) => setPdfUrl(e.target.value)} placeholder="https://example.com/task.pdf" />
+                </div>
+                <div className="grid gap-2">
                   <Label htmlFor="as-due">Due Date</Label>
                   <Input id="as-due" type="datetime-local" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
                 </div>
@@ -378,6 +456,7 @@ export default function Assignments({ user }: AssignmentsProps) {
         {filteredAssignments.map((assignment) => {
           const submission = getSubmissionForAssignment(assignment.id);
           const isOverdue = new Date(assignment.dueDate) < new Date() && !submission;
+          const submissionCount = submissions.filter(s => s.assignmentId === assignment.id).length;
 
           return (
             <Card key={assignment.id} className="border-none shadow-sm hover:shadow-md transition-all group bg-white overflow-hidden flex flex-col">
@@ -385,13 +464,23 @@ export default function Assignments({ user }: AssignmentsProps) {
                 <div className="flex items-center justify-between mb-3">
                   <div className={cn(
                     "px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full",
-                    submission ? "bg-green-50 text-green-600" : isOverdue ? "bg-red-50 text-red-600" : "bg-orange-50 text-orange-600"
+                    isAdmin ? "bg-blue-50 text-blue-600" : (submission ? "bg-green-50 text-green-600" : isOverdue ? "bg-red-50 text-red-600" : "bg-orange-50 text-orange-600")
                   )}>
-                    {submission ? 'Submitted' : isOverdue ? 'Overdue' : 'Pending'}
+                    {isAdmin ? `${submissionCount} Submissions` : (submission ? 'Submitted' : isOverdue ? 'Overdue' : 'Pending')}
                   </div>
-                  <div className="flex items-center text-slate-400 text-xs">
-                    <Calendar className="h-3 w-3 mr-1" />
-                    {format(new Date(assignment.dueDate), 'MMM d')}
+                  <div className="flex items-center space-x-2">
+                    <div className="flex items-center text-slate-400 text-xs">
+                      <Calendar className="h-3 w-3 mr-1" />
+                      {format(new Date(assignment.dueDate), 'MMM d')}
+                    </div>
+                    {isAdmin && (
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteAssignment(assignment.id);
+                      }}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
                   </div>
                 </div>
                 <CardTitle className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2">
@@ -402,10 +491,22 @@ export default function Assignments({ user }: AssignmentsProps) {
                 <p className="text-slate-500 text-sm line-clamp-3">
                   {assignment.description}
                 </p>
+                {isAdmin && (
+                  <div className="mt-4 flex items-center text-xs text-slate-400">
+                    <UsersIcon className="h-3 w-3 mr-1" />
+                    {submissionCount} students submitted
+                  </div>
+                )}
               </CardContent>
               <CardFooter className="p-6 pt-0 mt-auto border-t border-slate-50">
-                <Button className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 rounded-xl font-bold" onClick={() => setSelectedAssignment(assignment)}>
-                  {submission ? 'View Submission' : 'Submit Work'}
+                <Button 
+                  className={cn(
+                    "w-full mt-4 rounded-xl font-bold",
+                    isAdmin ? "bg-blue-600 hover:bg-blue-700" : "bg-emerald-600 hover:bg-emerald-700"
+                  )} 
+                  onClick={() => isAdmin ? document.getElementById('submissions-table')?.scrollIntoView({ behavior: 'smooth' }) : setSelectedAssignment(assignment)}
+                >
+                  {isAdmin ? 'Check Submissions' : (submission ? 'View Submission' : 'Submit Work')}
                 </Button>
               </CardFooter>
             </Card>
@@ -423,7 +524,7 @@ export default function Assignments({ user }: AssignmentsProps) {
       </div>
 
       {isAdmin && submissions.length > 0 && (
-        <div className="pt-12 space-y-6">
+        <div id="submissions-table" className="pt-12 space-y-6">
           <h2 className="text-2xl font-bold text-slate-900">Recent Submissions</h2>
           <Card className="border-none shadow-sm overflow-hidden">
             <CardContent className="p-0">
@@ -480,6 +581,22 @@ export default function Assignments({ user }: AssignmentsProps) {
                                 <div className="p-4 bg-slate-50 rounded-xl text-sm text-slate-700 whitespace-pre-wrap max-h-[200px] overflow-y-auto border border-slate-100">
                                   {sub.content}
                                 </div>
+                                {sub.pdfUrl && (
+                                  <div className="p-3 bg-blue-50 rounded-xl border border-blue-100 flex items-center justify-between">
+                                    <div className="flex items-center space-x-2">
+                                      <FileText className="h-4 w-4 text-blue-600" />
+                                      <span className="text-xs font-bold text-blue-900">Student PDF Attachment</span>
+                                    </div>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      className="h-7 text-blue-600 hover:bg-blue-100"
+                                      onClick={() => window.open(sub.pdfUrl, '_blank')}
+                                    >
+                                      <ExternalLink className="h-3 w-3 mr-1" /> View
+                                    </Button>
+                                  </div>
+                                )}
                                 <div className="grid gap-2">
                                   <Label htmlFor="marks">Marks (out of 100)</Label>
                                   <Input id="marks" type="number" min="0" max="100" value={marks} onChange={(e) => setMarks(parseInt(e.target.value))} />

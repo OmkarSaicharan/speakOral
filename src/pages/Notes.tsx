@@ -25,7 +25,9 @@ import {
   Clock, 
   Tag,
   ChevronRight,
-  ArrowLeft
+  ArrowLeft,
+  FileText,
+  ExternalLink
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
@@ -45,6 +47,7 @@ export default function Notes({ user }: NotesProps) {
   const [title, setTitle] = useState('');
   const [topic, setTopic] = useState('');
   const [content, setContent] = useState('');
+  const [pdfUrl, setPdfUrl] = useState('');
 
   const isAdmin = user.role === 'admin';
 
@@ -74,6 +77,7 @@ export default function Notes({ user }: NotesProps) {
           title,
           topic,
           content,
+          pdfUrl,
           updatedAt: new Date().toISOString()
         });
       } else {
@@ -81,6 +85,7 @@ export default function Notes({ user }: NotesProps) {
           title,
           topic,
           content,
+          pdfUrl,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         });
@@ -108,6 +113,7 @@ export default function Notes({ user }: NotesProps) {
     setTitle('');
     setTopic('');
     setContent('');
+    setPdfUrl('');
     setEditingNote(null);
   };
 
@@ -134,6 +140,26 @@ export default function Notes({ user }: NotesProps) {
               <Clock className="h-4 w-4 mr-1" />
               Last updated: {new Date(selectedNote.updatedAt).toLocaleDateString()}
             </div>
+            {selectedNote.pdfUrl && (
+              <div className="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="bg-red-100 p-2 rounded-lg">
+                    <FileText className="h-6 w-6 text-red-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-slate-900">Attached PDF Lesson</p>
+                    <p className="text-xs text-slate-500">Click to view or download the PDF material</p>
+                  </div>
+                </div>
+                <Button 
+                  variant="outline" 
+                  className="rounded-xl border-red-200 text-red-600 hover:bg-red-50"
+                  onClick={() => window.open(selectedNote.pdfUrl, '_blank')}
+                >
+                  <ExternalLink className="mr-2 h-4 w-4" /> View PDF
+                </Button>
+              </div>
+            )}
           </CardHeader>
           <CardContent className="p-8 prose prose-slate max-w-none">
             <div className="markdown-body">
@@ -187,6 +213,15 @@ export default function Notes({ user }: NotesProps) {
                     className="min-h-[200px]"
                   />
                 </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="pdfUrl">PDF URL (Optional)</Label>
+                  <Input 
+                    id="pdfUrl" 
+                    value={pdfUrl} 
+                    onChange={(e) => setPdfUrl(e.target.value)} 
+                    placeholder="https://example.com/lesson.pdf" 
+                  />
+                </div>
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
@@ -225,6 +260,7 @@ export default function Notes({ user }: NotesProps) {
                       setTitle(note.title);
                       setTopic(note.topic);
                       setContent(note.content);
+                      setPdfUrl(note.pdfUrl || '');
                       setIsDialogOpen(true);
                     }}>
                       <Edit className="h-4 w-4" />

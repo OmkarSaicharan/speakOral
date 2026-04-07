@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { collection, query, getDocs, addDoc, doc, orderBy, setDoc } from 'firebase/firestore';
+import { collection, query, getDocs, addDoc, doc, orderBy, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { UserProfile, Quiz, QuizResult, Question } from '../types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -25,7 +25,8 @@ import {
   ArrowLeft,
   Trophy,
   Timer,
-  HelpCircle
+  HelpCircle,
+  Trash2
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -35,6 +36,7 @@ interface QuizzesProps {
 
 export default function Quizzes({ user }: QuizzesProps) {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [results, setResults] = useState<QuizResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
@@ -57,7 +59,10 @@ export default function Quizzes({ user }: QuizzesProps) {
 
   useEffect(() => {
     fetchQuizzes();
-  }, []);
+    if (isAdmin) {
+      fetchResults();
+    }
+  }, [isAdmin]);
 
   const fetchQuizzes = async () => {
     setLoading(true);
@@ -69,6 +74,16 @@ export default function Quizzes({ user }: QuizzesProps) {
       console.error("Error fetching quizzes:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchResults = async () => {
+    try {
+      const q = query(collection(db, 'results'), orderBy('completedAt', 'desc'));
+      const querySnapshot = await getDocs(q);
+      setResults(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as QuizResult)));
+    } catch (error) {
+      console.error("Error fetching results:", error);
     }
   };
 
@@ -104,6 +119,16 @@ export default function Quizzes({ user }: QuizzesProps) {
       fetchQuizzes();
     } catch (error) {
       console.error("Error saving quiz:", error);
+    }
+  };
+
+  const handleDeleteQuiz = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this quiz?")) return;
+    try {
+      await deleteDoc(doc(db, 'quizzes', id));
+      fetchQuizzes();
+    } catch (error) {
+      console.error("Error deleting quiz:", error);
     }
   };
 
@@ -177,6 +202,10 @@ export default function Quizzes({ user }: QuizzesProps) {
     quiz.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     quiz.topic.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const getResultsForQuiz = (quizId: string) => {
+    return results.filter(r => r.quizId === quizId);
+  };
 
   if (activeQuiz) {
     if (quizFinished) {
@@ -402,35 +431,59 @@ export default function Quizzes({ user }: QuizzesProps) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredQuizzes.map((quiz) => (
-          <Card key={quiz.id} className="border-none shadow-sm hover:shadow-md transition-all group bg-white overflow-hidden flex flex-col">
-            <CardHeader className="p-6 pb-2">
-              <div className="flex items-center justify-between mb-3">
-                <span className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider rounded-full">
-                  {quiz.topic}
-                </span>
-                <div className="flex items-center text-slate-400 text-xs">
-                  <HelpCircle className="h-3 w-3 mr-1" />
-                  {quiz.questions.length} Questions
+        {filteredQuizzes.map((quiz) => {
+          const quizResults = getResultsForQuiz(quiz.id);
+          return (
+            <Card key={quiz.id} className="border-none shadow-sm hover:shadow-md transition-all group bg-white overflow-hidden flex flex-col">
+              <CardHeader className="p-6 pb-2">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider rounded-full">
+                    {quiz.topic}
+                  </span>
+                  <div className="flex items-center space-x-2">
+                    <div className="flex items-center text-slate-400 text-xs">
+                      <HelpCircle className="h-3 w-3 mr-1" />
+                      {quiz.questions.length} Questions
+                    </div>
+                    {isAdmin && (
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteQuiz(quiz.id);
+                      }}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <CardTitle className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2">
-                {quiz.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6 pt-2 flex-1">
-              <div className="flex items-center space-x-2 text-xs text-slate-500">
-                <Timer className="h-3 w-3" />
-                <span>Approx. {quiz.questions.length * 2} mins</span>
-              </div>
-            </CardContent>
-            <CardFooter className="p-6 pt-0 mt-auto border-t border-slate-50">
-              <Button className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 rounded-xl font-bold" onClick={() => startQuiz(quiz)}>
-                Start Quiz
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
+                <CardTitle className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+                  {quiz.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 pt-2 flex-1">
+                <div className="flex items-center space-x-2 text-xs text-slate-500">
+                  <Timer className="h-3 w-3" />
+                  <span>Approx. {quiz.questions.length * 2} mins</span>
+                </div>
+                {isAdmin && (
+                  <div className="mt-4 text-xs text-slate-400 font-medium">
+                    {quizResults.length} students completed this quiz
+                  </div>
+                )}
+              </CardContent>
+              <CardFooter className="p-6 pt-0 mt-auto border-t border-slate-50">
+                <Button 
+                  className={cn(
+                    "w-full mt-4 rounded-xl font-bold",
+                    isAdmin ? "bg-blue-600 hover:bg-blue-700" : "bg-emerald-600 hover:bg-emerald-700"
+                  )} 
+                  onClick={() => isAdmin ? document.getElementById('quiz-results-table')?.scrollIntoView({ behavior: 'smooth' }) : startQuiz(quiz)}
+                >
+                  {isAdmin ? 'Check Submissions' : 'Start Quiz'}
+                </Button>
+              </CardFooter>
+            </Card>
+          );
+        })}
         {filteredQuizzes.length === 0 && !loading && (
           <div className="col-span-full py-20 text-center bg-white rounded-3xl border-2 border-dashed border-slate-100">
             <div className="bg-slate-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -441,6 +494,55 @@ export default function Quizzes({ user }: QuizzesProps) {
           </div>
         )}
       </div>
+
+      {isAdmin && results.length > 0 && (
+        <div id="quiz-results-table" className="pt-12 space-y-6">
+          <h2 className="text-2xl font-bold text-slate-900">Quiz Submissions</h2>
+          <Card className="border-none shadow-sm overflow-hidden">
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50 border-b border-slate-100">
+                      <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Student</th>
+                      <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Quiz</th>
+                      <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Score</th>
+                      <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {results.map((res) => (
+                      <tr key={res.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-6 py-4">
+                          <p className="text-sm font-semibold text-slate-900">{res.studentName}</p>
+                          <p className="text-xs text-slate-500">{res.rollNumber || 'No Roll No.'}</p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <p className="text-sm text-slate-700 font-medium">{res.quizTitle}</p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center">
+                            <span className={cn(
+                              "text-sm font-bold mr-2",
+                              (res.score / res.totalQuestions) >= 0.7 ? "text-green-600" : (res.score / res.totalQuestions) >= 0.4 ? "text-orange-600" : "text-red-600"
+                            )}>
+                              {res.score} / {res.totalQuestions}
+                            </span>
+                            <span className="text-xs text-slate-400">({Math.round((res.score / res.totalQuestions) * 100)}%)</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <p className="text-xs text-slate-500">{new Date(res.completedAt).toLocaleDateString()}</p>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

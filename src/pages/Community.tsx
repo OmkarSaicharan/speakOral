@@ -16,7 +16,8 @@ import {
   Trash2, 
   Clock,
   MessageCircle,
-  Share2
+  Share2,
+  User
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { formatDistanceToNow } from 'date-fns';
@@ -133,9 +134,11 @@ export default function Community({ user }: CommunityProps) {
       <Card className="border-none shadow-sm bg-white overflow-hidden">
         <CardContent className="p-6">
           <div className="flex space-x-4">
-            <Avatar className="h-10 w-10 border-2 border-slate-100">
-              <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`} />
-              <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+            <Avatar className="h-10 w-10 border-2 border-slate-100 bg-slate-200">
+              <AvatarImage src={user.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`} />
+              <AvatarFallback className="bg-slate-900 text-white">
+                <User className="h-5 w-5" />
+              </AvatarFallback>
             </Avatar>
             <div className="flex-1 space-y-4">
               <Textarea 
@@ -166,9 +169,11 @@ export default function Community({ user }: CommunityProps) {
             <CardHeader className="p-6 pb-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <Avatar className="h-10 w-10 border border-slate-100">
-                    <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${post.authorName}`} />
-                    <AvatarFallback>{post.authorName.charAt(0)}</AvatarFallback>
+                  <Avatar className="h-10 w-10 border border-slate-100 bg-slate-200">
+                    <AvatarImage src={post.authorId === user.uid ? user.photoURL : `https://api.dicebear.com/7.x/initials/svg?seed=${post.authorName}`} />
+                    <AvatarFallback className="bg-slate-900 text-white">
+                      <User className="h-5 w-5" />
+                    </AvatarFallback>
                   </Avatar>
                   <div>
                     <p className="text-sm font-bold text-slate-900">{post.authorName}</p>
@@ -178,7 +183,7 @@ export default function Community({ user }: CommunityProps) {
                     </p>
                   </div>
                 </div>
-                {(post.authorId === user.uid || user.role === 'admin') && (
+                {user.role === 'admin' && (
                   <Button variant="ghost" size="icon" className="text-slate-400 hover:text-red-600" onClick={() => handleDeletePost(post.id)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -216,9 +221,11 @@ export default function Community({ user }: CommunityProps) {
               <div className="w-full space-y-4 pt-4 border-t border-slate-100">
                 {comments[post.id]?.map((comment) => (
                   <div key={comment.id} className="flex space-x-3 group">
-                    <Avatar className="h-8 w-8 border border-slate-100">
-                      <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${comment.authorName}`} />
-                      <AvatarFallback>{comment.authorName.charAt(0)}</AvatarFallback>
+                    <Avatar className="h-8 w-8 border border-slate-100 bg-slate-200">
+                      <AvatarImage src={comment.authorId === user.uid ? user.photoURL : `https://api.dicebear.com/7.x/initials/svg?seed=${comment.authorName}`} />
+                      <AvatarFallback className="bg-slate-900 text-white">
+                        <User className="h-4 w-4" />
+                      </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm">
                       <div className="flex items-center justify-between mb-1">
@@ -232,9 +239,11 @@ export default function Community({ user }: CommunityProps) {
 
                 {/* Add Comment */}
                 <div className="flex items-center space-x-3 pt-2">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`} />
-                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                  <Avatar className="h-8 w-8 bg-slate-200">
+                    <AvatarImage src={user.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`} />
+                    <AvatarFallback className="bg-slate-900 text-white">
+                      <User className="h-4 w-4" />
+                    </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 relative">
                     <Input 

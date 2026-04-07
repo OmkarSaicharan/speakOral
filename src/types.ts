@@ -15,6 +15,7 @@ export interface Note {
   title: string;
   content: string;
   topic: string;
+  pdfUrl?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -57,6 +58,7 @@ export interface Assignment {
   id: string;
   title: string;
   description: string;
+  pdfUrl?: string;
   dueDate: string;
   createdAt: string;
 }
@@ -67,6 +69,7 @@ export interface Submission {
   studentId: string;
   studentName: string;
   content: string;
+  pdfUrl?: string;
   marks?: number;
   feedback?: string;
   submittedAt: string;

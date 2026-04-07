@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User, Mail, Hash, Camera, Save, Loader2 } from 'lucide-react';
+import { cn } from '../lib/utils';
 
 interface ProfileProps {
   user: UserProfile;
@@ -21,8 +22,11 @@ export default function Profile({ user, onUserUpdate }: ProfileProps) {
   const [photoURL, setPhotoURL] = useState(user.photoURL || '');
   const [success, setSuccess] = useState(false);
 
+  const isAdmin = user.role === 'admin';
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isAdmin) return; // Extra safety check
     setLoading(true);
     setSuccess(false);
     try {
@@ -47,6 +51,9 @@ export default function Profile({ user, onUserUpdate }: ProfileProps) {
     }
   };
 
+  const defaultAvatar = "https://api.dicebear.com/7.x/shapes/svg?seed=default"; // Or a more specific one
+  const avatarSrc = photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`;
+
   return (
     <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
@@ -58,15 +65,17 @@ export default function Profile({ user, onUserUpdate }: ProfileProps) {
         <CardContent className="relative px-6 pb-8">
           <div className="flex flex-col items-center -mt-16 mb-8">
             <div className="relative group">
-              <Avatar className="h-32 w-32 border-4 border-white shadow-2xl">
-                <AvatarImage src={photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`} />
-                <AvatarFallback className="text-4xl bg-emerald-50 text-emerald-600">
-                  {name.charAt(0)}
+              <Avatar className="h-32 w-32 border-4 border-white shadow-2xl bg-slate-200">
+                <AvatarImage src={avatarSrc} />
+                <AvatarFallback className="text-4xl bg-slate-900 text-white">
+                  <User className="h-16 w-16" />
                 </AvatarFallback>
               </Avatar>
-              <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                <Camera className="text-white h-8 w-8" />
-              </div>
+              {isAdmin && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                  <Camera className="text-white h-8 w-8" />
+                </div>
+              )}
             </div>
             <h2 className="text-2xl font-bold text-slate-900 mt-4">{name}</h2>
             <p className="text-slate-500 capitalize">{user.role}</p>
@@ -83,7 +92,28 @@ export default function Profile({ user, onUserUpdate }: ProfileProps) {
                   id="name" 
                   value={name} 
                   onChange={(e) => setName(e.target.value)}
-                  className="rounded-xl border-slate-200 focus:border-emerald-500 focus:ring-emerald-500"
+                  disabled={!isAdmin}
+                  className={cn(
+                    "rounded-xl border-slate-200 focus:border-emerald-500 focus:ring-emerald-500",
+                    !isAdmin && "bg-slate-50 cursor-not-allowed"
+                  )}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="roll" className="flex items-center text-slate-700">
+                  <Hash className="w-4 h-4 mr-2 text-emerald-600" />
+                  Roll Number
+                </Label>
+                <Input 
+                  id="roll" 
+                  value={rollNumber} 
+                  onChange={(e) => setRollNumber(e.target.value)}
+                  disabled={!isAdmin}
+                  placeholder="ENG-2024-XXX"
+                  className={cn(
+                    "rounded-xl border-slate-200 focus:border-emerald-500 focus:ring-emerald-500",
+                    !isAdmin && "bg-slate-50 cursor-not-allowed"
+                  )}
                 />
               </div>
               <div className="space-y-2">
@@ -98,50 +128,26 @@ export default function Profile({ user, onUserUpdate }: ProfileProps) {
                   className="rounded-xl bg-slate-50 border-slate-200 text-slate-500 cursor-not-allowed"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="roll" className="flex items-center text-slate-700">
-                  <Hash className="w-4 h-4 mr-2 text-emerald-600" />
-                  Roll Number
-                </Label>
-                <Input 
-                  id="roll" 
-                  value={rollNumber} 
-                  onChange={(e) => setRollNumber(e.target.value)}
-                  placeholder="ENG-2024-XXX"
-                  className="rounded-xl border-slate-200 focus:border-emerald-500 focus:ring-emerald-500"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="photo" className="flex items-center text-slate-700">
-                  <Camera className="w-4 h-4 mr-2 text-emerald-600" />
-                  Photo URL
-                </Label>
-                <Input 
-                  id="photo" 
-                  value={photoURL} 
-                  onChange={(e) => setPhotoURL(e.target.value)}
-                  placeholder="https://example.com/photo.jpg"
-                  className="rounded-xl border-slate-200 focus:border-emerald-500 focus:ring-emerald-500"
-                />
-              </div>
             </div>
 
             <div className="pt-4 flex items-center justify-between">
               <div className="text-xs text-slate-400">
                 User ID: <span className="font-mono">{user.uid}</span>
               </div>
-              <Button 
-                type="submit" 
-                disabled={loading}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-8 shadow-lg shadow-emerald-200"
-              >
-                {loading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Save className="mr-2 h-4 w-4" />
-                )}
-                Save Changes
-              </Button>
+              {isAdmin && (
+                <Button 
+                  type="submit" 
+                  disabled={loading}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-8 shadow-lg shadow-emerald-200"
+                >
+                  {loading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="mr-2 h-4 w-4" />
+                  )}
+                  Save Changes
+                </Button>
+              )}
             </div>
             {success && (
               <p className="text-center text-emerald-600 font-medium animate-in slide-in-from-bottom-2">

@@ -18,7 +18,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Info,
-  AlertTriangle
+  AlertTriangle,
+  User
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, writeBatch } from 'firebase/firestore';
@@ -134,9 +135,11 @@ export default function Layout({ user }: LayoutProps) {
 
         <div className="p-4 border-t border-emerald-800/50">
           <Link to="/profile" className="flex items-center p-2 mb-4 hover:bg-emerald-800/50 rounded-xl transition-colors">
-            <Avatar className="h-10 w-10 border-2 border-emerald-700">
-              <AvatarImage src={user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`} />
-              <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+            <Avatar className="h-10 w-10 border-2 border-emerald-700 bg-slate-200">
+              <AvatarImage src={user.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`} />
+              <AvatarFallback className="bg-slate-900 text-white">
+                <User className="h-5 w-5" />
+              </AvatarFallback>
             </Avatar>
             <div className="ml-3 overflow-hidden">
               <p className="text-sm font-semibold text-white truncate">{user.name}</p>
@@ -254,9 +257,11 @@ export default function Layout({ user }: LayoutProps) {
               </DialogContent>
             </Dialog>
             <Link to="/profile" className="md:hidden">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`} />
-                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+              <Avatar className="h-8 w-8 bg-slate-200">
+                <AvatarImage src={user.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`} />
+                <AvatarFallback className="bg-slate-900 text-white">
+                  <User className="h-4 w-4" />
+                </AvatarFallback>
               </Avatar>
             </Link>
           </div>
