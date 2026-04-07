@@ -171,73 +171,81 @@ export default function AdminDashboard() {
         <div className="space-y-6">
           <h2 className="text-xl font-bold text-slate-900">Content Management</h2>
           <div className="grid grid-cols-1 gap-4">
-            <Card className="border-none shadow-sm hover:shadow-md transition-all cursor-pointer group bg-white border-l-4 border-l-emerald-500">
-              <CardHeader className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-emerald-50 p-2 rounded-lg">
-                      <BookOpen className="h-5 w-5 text-emerald-600" />
+            <Link to="/notes">
+              <Card className="border-none shadow-sm hover:shadow-md transition-all cursor-pointer group bg-white border-l-4 border-l-emerald-500">
+                <CardHeader className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="bg-emerald-50 p-2 rounded-lg">
+                        <BookOpen className="h-5 w-5 text-emerald-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base">Manage Notes</CardTitle>
+                        <CardDescription className="text-xs text-slate-600">Add or edit text lessons</CardDescription>
+                      </div>
                     </div>
-                    <div>
-                      <CardTitle className="text-base">Manage Notes</CardTitle>
-                      <CardDescription className="text-xs">Add or edit text lessons</CardDescription>
-                    </div>
+                    <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-emerald-500 transition-colors" />
                   </div>
-                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-emerald-500 transition-colors" />
-                </div>
-              </CardHeader>
-            </Card>
+                </CardHeader>
+              </Card>
+            </Link>
 
-            <Card className="border-none shadow-sm hover:shadow-md transition-all cursor-pointer group bg-white border-l-4 border-l-emerald-500">
-              <CardHeader className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-emerald-50 p-2 rounded-lg">
-                      <VideoIcon className="h-5 w-5 text-emerald-600" />
+            <Link to="/videos">
+              <Card className="border-none shadow-sm hover:shadow-md transition-all cursor-pointer group bg-white border-l-4 border-l-emerald-500">
+                <CardHeader className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="bg-emerald-50 p-2 rounded-lg">
+                        <VideoIcon className="h-5 w-5 text-emerald-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base">Manage Videos</CardTitle>
+                        <CardDescription className="text-xs text-slate-600">Upload video tutorials</CardDescription>
+                      </div>
                     </div>
-                    <div>
-                      <CardTitle className="text-base">Manage Videos</CardTitle>
-                      <CardDescription className="text-xs">Upload video tutorials</CardDescription>
-                    </div>
+                    <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-emerald-500 transition-colors" />
                   </div>
-                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-emerald-500 transition-colors" />
-                </div>
-              </CardHeader>
-            </Card>
+                </CardHeader>
+              </Card>
+            </Link>
 
-            <Card className="border-none shadow-sm hover:shadow-md transition-all cursor-pointer group bg-white border-l-4 border-l-emerald-500">
-              <CardHeader className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-emerald-50 p-2 rounded-lg">
-                      <GraduationCap className="h-5 w-5 text-emerald-600" />
+            <Link to="/quizzes">
+              <Card className="border-none shadow-sm hover:shadow-md transition-all cursor-pointer group bg-white border-l-4 border-l-emerald-500">
+                <CardHeader className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="bg-emerald-50 p-2 rounded-lg">
+                        <GraduationCap className="h-5 w-5 text-emerald-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base">Manage Quizzes</CardTitle>
+                        <CardDescription className="text-xs text-slate-600">Create and edit MCQs</CardDescription>
+                      </div>
                     </div>
-                    <div>
-                      <CardTitle className="text-base">Manage Quizzes</CardTitle>
-                      <CardDescription className="text-xs">Create and edit MCQs</CardDescription>
-                    </div>
+                    <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-emerald-500 transition-colors" />
                   </div>
-                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-emerald-500 transition-colors" />
-                </div>
-              </CardHeader>
-            </Card>
+                </CardHeader>
+              </Card>
+            </Link>
 
-            <Card className="border-none shadow-sm hover:shadow-md transition-all cursor-pointer group bg-white border-l-4 border-l-emerald-500">
-              <CardHeader className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-emerald-50 p-2 rounded-lg">
-                      <FileText className="h-5 w-5 text-emerald-600" />
+            <Link to="/assignments">
+              <Card className="border-none shadow-sm hover:shadow-md transition-all cursor-pointer group bg-white border-l-4 border-l-emerald-500">
+                <CardHeader className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="bg-emerald-50 p-2 rounded-lg">
+                        <FileText className="h-5 w-5 text-emerald-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base">Assignments</CardTitle>
+                        <CardDescription className="text-xs text-slate-600">Grade student submissions</CardDescription>
+                      </div>
                     </div>
-                    <div>
-                      <CardTitle className="text-base">Assignments</CardTitle>
-                      <CardDescription className="text-xs">Grade student submissions</CardDescription>
-                    </div>
+                    <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-emerald-500 transition-colors" />
                   </div>
-                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-emerald-500 transition-colors" />
-                </div>
-              </CardHeader>
-            </Card>
+                </CardHeader>
+              </Card>
+            </Link>
           </div>
 
           <Card className="border-none bg-slate-900 text-white shadow-lg">
