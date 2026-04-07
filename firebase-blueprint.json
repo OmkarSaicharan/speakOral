@@ -1,0 +1,147 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information including role and roll number.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "name": { "type": "string", "description": "Full name" },
+        "email": { "type": "string", "description": "Email address" },
+        "rollNumber": { "type": "string", "description": "Student roll number" },
+        "role": { "type": "string", "enum": ["student", "admin"], "description": "User role" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "name", "email", "role"]
+    },
+    "Note": {
+      "title": "Note",
+      "description": "Text-based learning lesson.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "topic": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "content", "topic"]
+    },
+    "Video": {
+      "title": "Video",
+      "description": "Video lesson with embedded URL.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "url": { "type": "string", "format": "uri" },
+        "topic": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "url", "topic"]
+    },
+    "Quiz": {
+      "title": "Quiz",
+      "description": "Multiple choice quiz.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "topic": { "type": "string" },
+        "questions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "question": { "type": "string" },
+              "options": { "type": "array", "items": { "type": "string" } },
+              "correctAnswer": { "type": "number", "description": "Index of correct option" }
+            }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "topic", "questions"]
+    },
+    "Result": {
+      "title": "Result",
+      "description": "Student quiz result.",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string" },
+        "studentName": { "type": "string" },
+        "rollNumber": { "type": "string" },
+        "quizId": { "type": "string" },
+        "quizTitle": { "type": "string" },
+        "score": { "type": "number" },
+        "totalQuestions": { "type": "number" },
+        "completedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["studentId", "quizId", "score", "totalQuestions"]
+    },
+    "Assignment": {
+      "title": "Assignment",
+      "description": "Student assignment submission.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "dueDate": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "description"]
+    },
+    "Submission": {
+      "title": "Submission",
+      "description": "Assignment submission by a student.",
+      "type": "object",
+      "properties": {
+        "assignmentId": { "type": "string" },
+        "studentId": { "type": "string" },
+        "studentName": { "type": "string" },
+        "content": { "type": "string", "description": "Text answer or file URL" },
+        "marks": { "type": "number" },
+        "feedback": { "type": "string" },
+        "submittedAt": { "type": "string", "format": "date-time" },
+        "gradedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["assignmentId", "studentId", "content"]
+    },
+    "Post": {
+      "title": "Post",
+      "description": "Community discussion post.",
+      "type": "object",
+      "properties": {
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "content": { "type": "string" },
+        "likes": { "type": "array", "items": { "type": "string" }, "description": "List of user IDs who liked" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["authorId", "authorName", "content"]
+    },
+    "Comment": {
+      "title": "Comment",
+      "description": "Comment on a community post.",
+      "type": "object",
+      "properties": {
+        "postId": { "type": "string" },
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "content": { "type": "string" },
+        "likes": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["postId", "authorId", "authorName", "content"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": { "schema": "User", "description": "User profiles" },
+    "/notes/{noteId}": { "schema": "Note", "description": "Learning notes" },
+    "/videos/{videoId}": { "schema": "Video", "description": "Video lessons" },
+    "/quizzes/{quizId}": { "schema": "Quiz", "description": "Quizzes" },
+    "/results/{resultId}": { "schema": "Result", "description": "Quiz results" },
+    "/assignments/{assignmentId}": { "schema": "Assignment", "description": "Assignments" },
+    "/submissions/{submissionId}": { "schema": "Submission", "description": "Student submissions" },
+    "/posts/{postId}": { "schema": "Post", "description": "Community posts" },
+    "/posts/{postId}/comments/{commentId}": { "schema": "Comment", "description": "Post comments" }
+  }
+}
