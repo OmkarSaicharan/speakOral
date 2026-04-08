@@ -154,5 +154,27 @@ service cloud.firestore {
                     request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
       allow delete: if isAuthenticated() && isOwner(resource.data.userId);
     }
+
+    match /messages/{messageId} {
+      function isValidMessage(data) {
+        return data.chatId is string &&
+               data.senderId is string &&
+               data.receiverId is string &&
+               data.text is string && data.text.size() > 0 && data.text.size() < 5000 &&
+               data.timestamp is string &&
+               data.read is bool;
+      }
+      // Allow read if user is part of the chat (chatId is student UID) or is admin
+      allow read: if isAuthenticated() && (resource.data.chatId == request.auth.uid || isAdmin());
+      
+      // Allow create if sender is the logged in user, and if student, chatId must be their UID
+      allow create: if isAuthenticated() && 
+                    isOwner(request.resource.data.senderId) && 
+                    isValidMessage(request.resource.data) &&
+                    (isAdmin() || request.resource.data.chatId == request.auth.uid);
+                    
+      allow update: if isAuthenticated() && (isOwner(resource.data.receiverId) || isAdmin()) && 
+                    request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+    }
   }
 }

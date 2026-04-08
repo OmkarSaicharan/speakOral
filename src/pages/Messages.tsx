@@ -23,9 +23,11 @@ export default function Messages({ user }: MessagesProps) {
 
   const isAdmin = user.role === 'admin';
   const [adminUid, setAdminUid] = useState<string | null>(null);
+  const [fetchingAdmin, setFetchingAdmin] = useState(!isAdmin);
 
   // Find admin UID
   useEffect(() => {
+    if (isAdmin) return;
     const fetchAdmin = async () => {
       try {
         const q = query(collection(db, 'users'), where('role', '==', 'admin'), limit(1));
@@ -35,10 +37,12 @@ export default function Messages({ user }: MessagesProps) {
         }
       } catch (error) {
         console.error("Error fetching admin:", error);
+      } finally {
+        setFetchingAdmin(false);
       }
     };
     fetchAdmin();
-  }, []);
+  }, [isAdmin]);
 
   // Fetch all students for admin to chat with
   useEffect(() => {
@@ -98,7 +102,12 @@ export default function Messages({ user }: MessagesProps) {
     const receiverId = isAdmin ? selectedStudent?.uid : adminUid;
     const chatId = isAdmin ? selectedStudent?.uid : user.uid;
 
-    if (!input.trim() || !receiverId || !chatId) return;
+    if (!input.trim() || !chatId) return;
+    
+    if (!receiverId) {
+      alert("Support is currently unavailable. Please try again later.");
+      return;
+    }
 
     try {
       await addDoc(collection(db, 'messages'), {
@@ -179,10 +188,16 @@ export default function Messages({ user }: MessagesProps) {
               {/* WhatsApp Background Pattern Overlay (Simulated) */}
               <div className="absolute inset-0 opacity-[0.05] pointer-events-none bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-repeat" />
               
-              <div 
-                ref={scrollRef}
-                className="flex-1 overflow-y-auto p-6 space-y-4 relative z-10"
-              >
+              {fetchingAdmin ? (
+                <div className="flex-1 flex flex-col items-center justify-center text-slate-400 space-y-4 relative z-10">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#128c7e]"></div>
+                  <p className="text-sm">Connecting to support...</p>
+                </div>
+              ) : (
+                <div 
+                  ref={scrollRef}
+                  className="flex-1 overflow-y-auto p-6 space-y-4 relative z-10"
+                >
                 {messages.map((msg) => {
                   const isMe = msg.senderId === user.uid;
                   return (
@@ -219,6 +234,7 @@ export default function Messages({ user }: MessagesProps) {
                   </div>
                 )}
               </div>
+              )}
               <div className="p-3 bg-[#f0f0f0] border-t border-slate-200 relative z-10">
                 <form onSubmit={handleSend} className="flex items-center space-x-2">
                   <Input 

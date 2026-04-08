@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db, googleProvider } from '../firebase';
 import { UserProfile, UserRole, Enrollment } from '../types';
 import { Button } from '@/components/ui/button';
@@ -44,10 +44,20 @@ export default function Login({ onUserUpdate }: LoginProps) {
       
       const userDoc = await getDoc(doc(db, 'users', user.uid));
       if (userDoc.exists()) {
-        onUserUpdate(userDoc.data() as UserProfile);
+        const userData = userDoc.data() as UserProfile;
+        const isAdmin = user.email === 'admin@gmail.com' || user.email === 'saicheranomkar@gmail.com';
+        
+        // Ensure admin role is correct if email matches
+        if (isAdmin && userData.role !== 'admin') {
+          const updatedProfile = { ...userData, role: 'admin' as const };
+          await updateDoc(doc(db, 'users', user.uid), { role: 'admin' });
+          onUserUpdate(updatedProfile);
+        } else {
+          onUserUpdate(userData);
+        }
       } else {
         // Create new student profile for first time Google login
-        const isAdmin = user.email === 'admin@gmail.com';
+        const isAdmin = user.email === 'admin@gmail.com' || user.email === 'saicheranomkar@gmail.com';
         const newProfile: UserProfile = {
           uid: user.uid,
           name: user.displayName || 'New Student',
@@ -73,13 +83,22 @@ export default function Login({ onUserUpdate }: LoginProps) {
       const result = await signInWithEmailAndPassword(auth, email, password);
       const userDoc = await getDoc(doc(db, 'users', result.user.uid));
       if (userDoc.exists()) {
-        onUserUpdate(userDoc.data() as UserProfile);
+        const userData = userDoc.data() as UserProfile;
+        const isAdmin = email === 'admin@gmail.com' || email === 'saicheranomkar@gmail.com';
+        
+        if (isAdmin && userData.role !== 'admin') {
+          const updatedProfile = { ...userData, role: 'admin' as const };
+          await updateDoc(doc(db, 'users', result.user.uid), { role: 'admin' });
+          onUserUpdate(updatedProfile);
+        } else {
+          onUserUpdate(userData);
+        }
       } else {
-        if (email === 'admin@gmail.com') {
+        if (email === 'admin@gmail.com' || email === 'saicheranomkar@gmail.com') {
           const adminProfile: UserProfile = {
             uid: result.user.uid,
             name: 'Admin',
-            email: 'admin@gmail.com',
+            email: email,
             rollNumber: '100A',
             role: 'admin',
             createdAt: new Date().toISOString(),
@@ -110,7 +129,7 @@ export default function Login({ onUserUpdate }: LoginProps) {
       const result = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(result.user, { displayName: name });
       
-      const isAdmin = email === 'admin@gmail.com';
+      const isAdmin = email === 'admin@gmail.com' || email === 'saicheranomkar@gmail.com';
       const plan = plans.find(p => p.id === selectedPlan)!;
       
       const enrollment: Enrollment = {
@@ -163,7 +182,7 @@ export default function Login({ onUserUpdate }: LoginProps) {
       </div>
       <div className="w-full max-w-md z-10">
         <div className="flex flex-col items-center mb-6">
-          <h1 className="text-4xl font-bold text-white tracking-tight drop-shadow-lg">speakOral</h1>
+          <h1 className="text-4xl font-bold text-black tracking-tight">speakOral</h1>
           <p className="text-white/90 mt-1 font-bold drop-shadow-md">English at the Speed of Experience</p>
         </div>
 

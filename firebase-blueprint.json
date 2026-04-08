@@ -145,6 +145,20 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["userId", "title", "message", "type", "read", "createdAt"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Direct message between student and admin.",
+      "type": "object",
+      "properties": {
+        "chatId": { "type": "string", "description": "Student UID (used as chat identifier)" },
+        "senderId": { "type": "string" },
+        "receiverId": { "type": "string" },
+        "text": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "read": { "type": "boolean" }
+      },
+      "required": ["chatId", "senderId", "receiverId", "text", "timestamp", "read"]
     }
   },
   "firestore": {
@@ -157,6 +171,7 @@
     "/submissions/{submissionId}": { "schema": "Submission", "description": "Student submissions" },
     "/posts/{postId}": { "schema": "Post", "description": "Community posts" },
     "/posts/{postId}/comments/{commentId}": { "schema": "Comment", "description": "Post comments" },
-    "/notifications/{notificationId}": { "schema": "Notification", "description": "User notifications" }
+    "/notifications/{notificationId}": { "schema": "Notification", "description": "User notifications" },
+    "/messages/{messageId}": { "schema": "Message", "description": "Direct messages" }
   }
 }
