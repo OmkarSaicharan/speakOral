@@ -19,7 +19,8 @@ import {
   AlertCircle,
   Info,
   AlertTriangle,
-  User
+  User,
+  MessageSquare
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, writeBatch } from 'firebase/firestore';
@@ -27,6 +28,7 @@ import { Button } from '@/components/ui/button';
 import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import Chatbot from './Chatbot';
 import { 
   Dialog, 
   DialogContent, 
@@ -83,11 +85,12 @@ export default function Layout({ user }: LayoutProps) {
   };
 
   const navItems = [
-    { name: 'Dashboard', path: '/', icon: LayoutDashboard },
+    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Notes', path: '/notes', icon: BookOpen },
     { name: 'Videos', path: '/videos', icon: Video },
     { name: 'Quizzes', path: '/quizzes', icon: PenTool },
     { name: 'Assignments', path: '/assignments', icon: FileText },
+    { name: 'Messages', path: '/messages', icon: MessageSquare },
     { name: 'Community', path: '/community', icon: Users },
   ];
 
@@ -126,7 +129,7 @@ export default function Layout({ user }: LayoutProps) {
           <div className="bg-emerald-500 p-2 rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.3)]">
             <GraduationCap className="h-6 w-6 text-white" />
           </div>
-          <span className="text-xl font-bold text-white tracking-tight font-display">LingoLearn</span>
+          <span className="text-xl font-bold text-white tracking-tight font-display">speakOral</span>
         </div>
 
         <div className="flex-1 py-4">
@@ -171,7 +174,7 @@ export default function Layout({ user }: LayoutProps) {
                   <div className="bg-emerald-500 p-2 rounded-lg">
                     <GraduationCap className="h-6 w-6 text-white" />
                   </div>
-                  <span className="text-xl font-bold text-white font-display">LingoLearn</span>
+                  <span className="text-xl font-bold text-white font-display">speakOral</span>
                 </div>
                 <div className="py-6">
                   <NavLinks />
@@ -273,6 +276,8 @@ export default function Layout({ user }: LayoutProps) {
             <Outlet />
           </div>
         </main>
+        
+        <Chatbot />
       </div>
     </div>
   );

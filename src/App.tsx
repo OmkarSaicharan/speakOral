@@ -11,6 +11,7 @@ import { auth, db } from './firebase';
 import { UserProfile } from './types';
 
 // Pages (to be created)
+import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Notes from './pages/Notes';
@@ -20,6 +21,7 @@ import Assignments from './pages/Assignments';
 import Community from './pages/Community';
 import AdminDashboard from './pages/AdminDashboard';
 import Profile from './pages/Profile';
+import Messages from './pages/Messages';
 import Layout from './components/Layout';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
@@ -61,15 +63,17 @@ export default function App() {
     <ErrorBoundary>
       <Router>
         <Routes>
-          <Route path="/login" element={user ? <Navigate to="/" /> : <Login onUserUpdate={setUser} />} />
+          <Route path="/" element={<Landing user={user} />} />
+          <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login onUserUpdate={setUser} />} />
           
           <Route element={user ? <Layout user={user} /> : <Navigate to="/login" />}>
-            <Route path="/" element={user?.role === 'admin' ? <AdminDashboard /> : <Dashboard user={user!} />} />
+            <Route path="/dashboard" element={user?.role === 'admin' ? <AdminDashboard /> : <Dashboard user={user!} />} />
             <Route path="/notes" element={<Notes user={user!} />} />
             <Route path="/videos" element={<Videos user={user!} />} />
             <Route path="/quizzes" element={<Quizzes user={user!} />} />
             <Route path="/assignments" element={<Assignments user={user!} />} />
             <Route path="/community" element={<Community user={user!} />} />
+            <Route path="/messages" element={<Messages user={user!} />} />
             <Route path="/profile" element={<Profile user={user!} onUserUpdate={handleUserUpdate} />} />
           </Route>
         </Routes>

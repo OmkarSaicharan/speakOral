@@ -1,5 +1,22 @@
 export type UserRole = 'student' | 'admin';
 
+export interface CoursePlan {
+  id: string;
+  name: string;
+  price: number;
+  duration: string;
+  features: string[];
+}
+
+export interface Enrollment {
+  planId: string;
+  planName: string;
+  registeredAt: string;
+  startedAt: string;
+  endsAt: string;
+  status: 'active' | 'expired' | 'pending';
+}
+
 export interface UserProfile {
   uid: string;
   name: string;
@@ -8,6 +25,16 @@ export interface UserProfile {
   photoURL?: string;
   role: UserRole;
   createdAt: string;
+  enrollment?: Enrollment;
+}
+
+export interface Message {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  text: string;
+  timestamp: string;
+  read: boolean;
 }
 
 export interface Note {
