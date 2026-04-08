@@ -126,8 +126,13 @@ export default function Layout({ user }: LayoutProps) {
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-64 bg-emerald-900 border-r border-emerald-800 sticky top-0 h-screen shadow-xl">
         <div className="p-6 flex items-center space-x-3">
-          <div className="bg-emerald-500 p-2 rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-            <GraduationCap className="h-6 w-6 text-white" />
+          <div className="h-10 w-10 flex items-center justify-center bg-emerald-500 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.3)] overflow-hidden">
+            <img 
+              src="https://picsum.photos/seed/speakoral-logo/100/100" 
+              alt="speakOral Logo" 
+              className="h-full w-full object-cover"
+              referrerPolicy="no-referrer"
+            />
           </div>
           <span className="text-xl font-bold text-white tracking-tight font-display">speakOral</span>
         </div>
@@ -171,8 +176,13 @@ export default function Layout({ user }: LayoutProps) {
               </SheetTrigger>
               <SheetContent side="left" className="p-0 w-64 bg-emerald-900 border-emerald-800">
                 <div className="p-6 flex items-center space-x-3 border-b border-emerald-800">
-                  <div className="bg-emerald-500 p-2 rounded-lg">
-                    <GraduationCap className="h-6 w-6 text-white" />
+                  <div className="h-10 w-10 flex items-center justify-center bg-emerald-500 rounded-xl overflow-hidden">
+                    <img 
+                      src="https://picsum.photos/seed/speakoral-logo/100/100" 
+                      alt="speakOral Logo" 
+                      className="h-full w-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
                   </div>
                   <span className="text-xl font-bold text-white font-display">speakOral</span>
                 </div>
@@ -191,7 +201,20 @@ export default function Layout({ user }: LayoutProps) {
                 </div>
               </SheetContent>
             </Sheet>
-            <h2 className="text-lg font-semibold text-white hidden md:block">
+            
+            {/* Mobile Logo */}
+            <div className="md:hidden flex items-center mr-3">
+              <div className="h-8 w-8 flex items-center justify-center bg-emerald-500 rounded-lg overflow-hidden shadow-lg">
+                <img 
+                  src="https://picsum.photos/seed/speakoral-logo/100/100" 
+                  alt="speakOral Logo" 
+                  className="h-full w-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+            </div>
+
+            <h2 className="text-lg font-semibold text-white truncate max-w-[150px] md:max-w-none">
               {navItems.find(item => item.path === location.pathname)?.name || 'Dashboard'}
             </h2>
           </div>
@@ -204,10 +227,18 @@ export default function Layout({ user }: LayoutProps) {
                   <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-emerald-800"></span>
                 )}
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Notifications</DialogTitle>
-                  <DialogDescription>Stay updated with your latest learning activities.</DialogDescription>
+              <DialogContent className="sm:max-w-[425px] rounded-2xl border-none shadow-2xl">
+                <DialogHeader className="flex flex-col items-center">
+                  <div className="h-12 w-12 flex items-center justify-center bg-emerald-500 rounded-xl overflow-hidden mb-4 shadow-lg">
+                    <img 
+                      src="https://picsum.photos/seed/speakoral-logo/100/100" 
+                      alt="speakOral Logo" 
+                      className="h-full w-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                  <DialogTitle className="text-xl font-bold text-slate-900">Notifications</DialogTitle>
+                  <DialogDescription className="text-center">Stay updated with your latest learning activities.</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 mt-4 max-h-[400px] overflow-y-auto pr-2">
                   {notifications.length > 0 ? (
