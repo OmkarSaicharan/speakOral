@@ -105,6 +105,14 @@ export default function Community({ user }: CommunityProps) {
     }
   };
 
+  const handleDeleteComment = async (postId: string, commentId: string) => {
+    try {
+      await deleteDoc(doc(db, `posts/${postId}/comments`, commentId));
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+    }
+  };
+
   const handleCreateComment = async (postId: string) => {
     const content = newCommentContent[postId];
     if (!content?.trim()) return;
@@ -231,7 +239,17 @@ export default function Community({ user }: CommunityProps) {
                     <div className="flex-1 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm">
                       <div className="flex items-center justify-between mb-1">
                         <p className="text-xs font-bold text-slate-900">{comment.authorName}</p>
-                        <p className="text-[10px] text-slate-400">{formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}</p>
+                        <div className="flex items-center space-x-2">
+                          <p className="text-[10px] text-slate-400">{formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}</p>
+                          {user.role === 'admin' && (
+                            <button 
+                              className="text-slate-400 hover:text-red-500 transition-colors"
+                              onClick={() => handleDeleteComment(post.id, comment.id)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </button>
+                          )}
+                        </div>
                       </div>
                       <p className="text-sm text-slate-600">{comment.content}</p>
                     </div>

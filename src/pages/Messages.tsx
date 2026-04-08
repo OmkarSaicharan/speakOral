@@ -5,9 +5,11 @@ import { UserProfile, Message } from '../types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, User, Search, Check, CheckCheck, MessageSquare, ChevronLeft } from 'lucide-react';
+import { Send, User, Search, Check, CheckCheck, MessageSquare, ChevronLeft, Trash2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
+import { DeleteConfirmDialog } from '../components/DeleteConfirmDialog';
+import { deleteDoc } from 'firebase/firestore';
 
 interface MessagesProps {
   user: UserProfile;
@@ -19,6 +21,7 @@ export default function Messages({ user }: MessagesProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const isAdmin = user.role === 'admin';
@@ -124,6 +127,14 @@ export default function Messages({ user }: MessagesProps) {
     }
   };
 
+  const handleDeleteMessage = async (messageId: string) => {
+    try {
+      await deleteDoc(doc(db, 'messages', messageId));
+    } catch (error) {
+      console.error("Error deleting message:", error);
+    }
+  };
+
   const filteredChats = chats.filter(c => 
     c.student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.student.email.toLowerCase().includes(searchQuery.toLowerCase())
@@ -226,9 +237,17 @@ export default function Messages({ user }: MessagesProps) {
                         )}
                       >
                         <div className={cn(
-                          "p-2.5 px-4 rounded-xl shadow-sm text-sm relative max-w-[85%] md:max-w-[70%]",
+                          "p-2.5 px-4 rounded-xl shadow-sm text-sm relative max-w-[85%] md:max-w-[70%] group/msg",
                           isMe ? "bg-[#dcf8c6] text-slate-800 rounded-tr-none" : "bg-white text-slate-800 rounded-tl-none"
                         )}>
+                          {isAdmin && (
+                            <button 
+                              className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-md text-red-500 opacity-0 group-hover/msg:opacity-100 transition-opacity z-10"
+                              onClick={() => setDeleteId(msg.id)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </button>
+                          )}
                           {msg.text}
                           <div className="flex items-center justify-end space-x-1 mt-1">
                             <span className="text-[9px] text-slate-400">
@@ -285,6 +304,14 @@ export default function Messages({ user }: MessagesProps) {
           </div>
         )}
       </Card>
+
+      <DeleteConfirmDialog 
+        isOpen={!!deleteId} 
+        onOpenChange={(open) => !open && setDeleteId(null)} 
+        onConfirm={() => deleteId && handleDeleteMessage(deleteId)}
+        title="Delete Message"
+        description="Are you sure you want to delete this message? This action cannot be undone."
+      />
     </div>
   );
 }

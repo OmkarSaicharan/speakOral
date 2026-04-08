@@ -90,7 +90,8 @@ service cloud.firestore {
                data.topic is string && data.topic.size() > 0;
       }
       allow read: if isAuthenticated();
-      allow write: if isAdmin() && isValidNote(request.resource.data);
+      allow create, update: if isAdmin() && isValidNote(request.resource.data);
+      allow delete: if isAdmin();
     }
 
     match /videos/{videoId} {
@@ -100,7 +101,8 @@ service cloud.firestore {
                data.topic is string;
       }
       allow read: if isAuthenticated();
-      allow write: if isAdmin() && isValidVideo(request.resource.data);
+      allow create, update: if isAdmin() && isValidVideo(request.resource.data);
+      allow delete: if isAdmin();
     }
 
     match /quizzes/{quizId} {
@@ -175,6 +177,7 @@ service cloud.firestore {
                     
       allow update: if isAuthenticated() && (isOwner(resource.data.receiverId) || isAdmin()) && 
                     request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow delete: if isAdmin();
     }
   }
 }
